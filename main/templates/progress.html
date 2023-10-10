@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+{% if user.is_authenticated %}
+
+
+<div class="card p-3 mb-2">
+  <p class="card-title text-center text-success h3">At A Glance</p>
+  <p class="card-title text-center text-primary h4">{{ dateToday }}</p>
+</div>
+<div class="card p-3 mb-2">
+   <table class="table table-hover table-sm text-center">
+    <thead>
+        <tr>
+            <th class="text-start"></th>
+            <th>Time</th>
+            <th>Avg Time</th>
+            <th>Subjects</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'home' %}'">
+            <td class="text-start">Today</td>
+            <td>{{total_time}}</td>
+            <td>{{total_time}}</td>
+            <td>{{todaysTotal}}</td>
+        </tr>
+        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start todaydate %}'">
+            <td class="text-start">This Week</td>
+            <td>{{week_time_taken}}</td>
+            <td>{{week_avg}}</td>
+            <td>{{total_this_week_records}}</td>
+        </tr>
+        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' first_day_of_month todaydate %}'">
+            <td class="text-start">This Month</td>
+            <td>{{monthTotal}}</td>
+            <td>{{monthavg}}</td>
+            <td>{{this_month_records}}</td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
+
+
+<div class="row">
+      <div class="col-12 col-md-6 col-lg-6">
+        <div class="card mb-2">
+            <div class="card-body">
+               <p class="card-title text-center h4">This Week <span class="text-primary">{{ this_week_range }}</span> </p>
+                <div class="chartother">
+                    <canvas id="myChart2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-6">
+        <div class="card mb-2">
+            <div class="card-body">
+                <p class="card-title text-center h4">This & Last Week Daily Study Hrs</p>
+                <div class="chartother">
+                    <canvas id="myChart3"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3 mb-2">
+  <p class="card-title text-center text-success h3">This Month <span class="text-primary">{{ monthNow }}</span></p>
+    <div class="chartMonth">
+      <canvas id="myChart"></canvas>
+    </div>
+
+</div>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx2 = document.getElementById('myChart2').getContext('2d'); // Get the canvas element by ID
+var subnames = {{ thisWeekSub|safe }};
+var studyHours = {{ thisWeekHours|safe }};// Parse the JSON data
+
+// Create a bar chart
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: subnames, // Subnames as labels
+    datasets: [{
+      label: 'Study Hours',
+      data: studyHours, // Study hours as data
+      borderWidth: 1,
+      backgroundColor: 'rgba(0, 123, 255, 0.6)',
+      borderColor: 'rgba(0, 123, 255, 1)',
+      maxBarThickness: 20,
+      borderRadius: 20,
+      borderSkipped: false,
+      barPercentage: 0.5,
+      
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        grid:{
+          display: true
+        },
+        beginAtZero: true
+      },
+      x: {
+        grid:{
+          display: false
+        },
+        
+      }
+    },
+    plugins: {
+      legend: {
+        display: false // Optional: Hide the legend if needed
+      }
+    }
+
+  }
+});
+</script>
+
+<script>
+var ctx3 = document.getElementById('myChart3').getContext('2d');
+
+// Data for this week and previous week
+var thisWeekData = {{ this_week_hours|safe }};
+var previousWeekData = {{ prev_week_hours|safe }};
+
+
+new Chart(ctx3, {
+  type: 'line',
+  data: {
+    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    datasets: [
+    {
+      label: '{{prev_week_range}}',
+      data: previousWeekData,
+      borderWidth: 1,
+      borderColor: 'green',
+      tension: 0.1,
+      backgroundColor: 'rgba(0, 128, 0, 0.2)', // Green fill color
+    },
+    {
+      label: '{{this_week_range}}',
+      data: thisWeekData,
+      borderWidth: 2,
+      hoverRadius: 8,
+      hoverBorderWidth: 3,
+      pointStyle: 'star',
+      borderColor: 'blue',
+      tension: 0.1,
+      backgroundColor: 'rgba(0, 0, 255, 0.2)', // Blue fill color
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        grid:{
+          display: true
+        },
+        beginAtZero: false
+      },
+      x: {
+        grid:{
+          display: false
+        },
+        
+      }
+    },
+    plugins: {
+      legend: {
+
+        align: 'end', // Align the legend to the start of the chart area
+        labels: {
+          usePointStyle: true, // Use point style (circle) for legend
+        }
+      }
+    }
+  }
+});
+
+</script>
+   
+
+<script>
+  const ctx = document.getElementById('myChart');
+  var datelist = {{ date_list|safe }};
+  var monthhours = {{ this_month_hours|safe }};
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: datelist,
+      datasets: [{
+        label: 'Hours',
+        data: monthhours,
+        borderWidth: 1,
+        tension: 0.2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        },
+      x: {
+        grid:{
+          display: false
+        }, 
+      }
+      },
+    plugins: {
+      legend: {
+
+        align: 'end', // Align the legend to the start of the chart area
+        labels: {
+          usePointStyle: true, // Use point style (circle) for legend
+        }
+      }
+    }
+    }
+  });
+</script>
+ 
+
+<style type="text/css">
+          .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .chartother {
+
+        height: 250px; /* Adjust this value to control the height */
+        }
+        .chartToday {
+
+        height: 25vh; /* Adjust this value to control the height */
+        }
+        .chartMonth{
+
+        height: 250px; /* Adjust this value to control the height */
+        }
+
+</style>
+{% endif %}
+{% endblock %}
+
+
+

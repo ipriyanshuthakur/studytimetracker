@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load main_extras %}
+{% load static %}
+{% if user.is_authenticated %}
+<section class="main_section">
+            <!-- Top User Info and Time -->
+<div class="d-flex mb-1 justify-content-between align-items-center">
+    <div class="text-start">
+        <h2 class="text-lg text-md-md text-sm-sm">
+            {% if user.is_superuser %}
+                I'm <span class="text-primary">{{ user.username|title }}</span>
+            {% else %}
+                I'm {{ user.first_name|title }} <span class="text-primary">{{ user.last_name|title }}</span>
+            {% endif %}
+        </h2>
+    </div>
+    <div class="text-end">
+        {% if running_records %}
+            <a href="{% url 'add_record' %}" class="btn btn-primary">Add Subject</a>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+<div class="mb-4 d-flex  justify-content-between">
+    <div class="card" style="width: 49%">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h6>{{ dateToday }}</h6>
+            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{ total_time }}</h6>
+            <h6>{{ daily_target }} Study target</h6>
+        </div>
+    </div>
+    <div class="card" style="width: 49%">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h6>{{ d_day }}</h6>
+            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{ target }}</h6>
+            <h6>{{ days_remaining }} Days left</h6>
+            
+        </div>
+    </div>
+</div>
+
+
+
+
+
+            <!-- Currently Doing Subject -->
+            
+    
+
+<div class="mb-4">
+    <!-- Current -->
+    {% if not running_records %}
+            <div class="card card-container ">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="text-center card-title">
+                        <a href="{% url 'add_record' %}" class="btn btn-success btn-lg rounded-pill">Start A New Subject</a>
+                    </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if running_records %}
+        {% for record in running_records %}
+            <div class="card card-container ">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="text-center card-title">
+                     <h1 class="text-success display-1 text-responsive" style="font-weight: bold; ">
+                        <span id="time-elapsed"></span>
+                     </h1>
+                        <h5  style=" font-size: 30px; ">
+                        {{ record.subname }} <span class="text-primary">{{ record.topic }} </span>
+                        </h5>
+                        <h6 class="card-title">Started at: {{ record.start_at.time }}</h6>
+                    </div>
+                    <div class=" d-flex justify-content-center">
+                    <div class="btn-group mx-2">
+                        <a href="{% url 'update_record' record.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletecurrentModal">
+                          Delete
+                        </button>
+                    </div>
+                    <a href="{% url 'mark_complete' record.id %}" class="mx-2 btn btn-success btn-sm">Done</a>
+                    </div>
+            </div>
+        </div>
+            <!-- Modal -->
+              <div class="modal fade text-left" id="deletecurrentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Delete</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure? it will delete <span class="text-primary">{{ record.topic }}, </span><span class="text-success">{{ record.subname }}</span></p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">No</button>
+                        <a href="{% url 'delete_record' record.id %}" class="btn btn-danger btn-sm">Yes, Delete it!</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        {% endfor %}
+    {% endif %}
+</div>
+</section>
+
+
+
+
+
+
+<div class="row">
+    <!-- Pending tasks -->
+    {% if not completed_records %}
+    <div class="col-12 col-md-12 col-lg-12">
+    {% else %}
+    <div class="col-12 col-md-6 col-lg-6">
+    {% endif %}
+        <div class="mb-4">
+
+
+            {% if queued_records %}
+            <div class="card mb-2">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <p style="font-size: 20px; font-weight: bold;">
+                        Pending <span class="text-primary" style="font-size: 25px;">{{ total_queued }}</span> 
+                    </p>
+                </div>
+            </div>
+
+            <div class="card p-3">
+                <table class="table table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Topic</th>
+                                    <th  class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in queued_records %}
+                                    <tr>
+                                        <td><span class="h6">{{ record.subname }}</span></td>
+                                        <td>{{ record.topic }}</td>
+                                        <td class="text-end">
+                                          <div class="btn-group" role="group">
+                                            <a href="{% url 'delete_record' record.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                            <a href="{% url 'update_record' record.id %}" class="btn btn-secondary btn-sm">Edit</a>
+
+                                        </div>
+                                        <a href="{% url 'start_subject' record.id %}" class="btn btn-primary btn-sm">Start</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Completed tasks -->
+    {% if not queued_records %}
+    <div class="col-12 col-md-12 col-lg-12">
+    {% else %}
+    <div class="col-12 col-md-6 col-lg-6">
+    {% endif %}
+
+        <div class="mb-4">
+            {% if completed_records %}
+            <div class="card mb-2">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <p style="font-size: 20px; font-weight: bold;">
+                        Today's Completed <span class="text-primary" style="font-size: 25px;">{{ total_completed }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card p-3">
+                <table class="table table-hover table-sm">
+                            <thead >
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Topic</th>
+                                    <th>Done Time</th>
+                                    <th>Time Taken</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in completed_records %}
+                                    <tr  style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
+                                        <td><span class="h6">{{ record.subname }}</span></td>
+                                        <td>{{ record.topic }}</td>
+                                        <td>{{ record.done_at.time }}</td>
+                                        <td>{{ record.time_taken|format_timedelta }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+    {% else %}
+        <div class="col-md-6 offset-md-3">
+            <h1>Login</h1>
+            <br/>
+            <form method="POST" action="{% url 'home' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="username" placeholder="Username" required>
+                </div>
+                <br/>
+                <div class="mb-3">
+                    <input type="password" class="form-control" name="password" placeholder="Password" required>
+                </div>
+                <br/>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    {% endif %}
+<script>
+    function updateTimeElapsed() {
+        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s' }}");
+        var current_time = new Date();
+        var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
+        var hours = Math.floor(elapsed_time_seconds / 3600);
+        var minutes = Math.floor((elapsed_time_seconds % 3600) / 60);
+        var seconds = elapsed_time_seconds % 60;
+        
+        var time_elapsed_formatted = "";
+        
+        if (hours > 0) {
+            time_elapsed_formatted += hours + 'h ';
+        }
+        
+        time_elapsed_formatted += minutes + 'm ' + seconds + 's';
+        
+        document.getElementById("time-elapsed").textContent = time_elapsed_formatted;
+    }
+    
+    updateTimeElapsed();
+    setInterval(updateTimeElapsed, 1000);
+
+
+</script>
+
+    
+    <style>
+        #user-name {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(100) forwards;
+        }
+    
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+        /* Apply glassmorphism effect to Bootstrap cards */
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-container {
+
+        height: 40vh; /* Adjust this value to control the height */
+        }
+        .main_section{
+            height: ;
+        }
+
+   .modal {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
+{% endblock %}

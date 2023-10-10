@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <h2>Settings</h2>
+    <br/>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row mb-2">
+            <label for="target_goal" class="col-sm-3 col-form-label">Target Goal:</label>
+            <div class="col-sm">
+                {{ form.target_goal }}
+                <div class="invalid-feedback">
+                    Please provide your target goal.
+                </div>
+            </div>
+        </div>
+         <div class="row mb-2">
+            <label for="target_date" class="col-sm-3 col-form-label">The Start Date:</label>
+            <div class="col-sm">
+                {{ form.thestart_date }}
+                <div class="invalid-feedback">
+                    Please select a valid date.
+                </div>
+            </div>
+        </div>
+       <div class="row mb-2">
+            <label for="target_date" class="col-sm-3 col-form-label">Target Date:</label>
+            <div class="col-sm">
+                {{ form.target_date }}
+                <div class="invalid-feedback">
+                    Please select a valid date.
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <label for="{{ form.daily_target_hours.id_for_label }}" class="col-sm-3 col-form-label">Daily Study Hours:</label>
+            <div class="col-sm">
+                {{ form.daily_target_hours }}
+                <div class="invalid-feedback">
+                    Please provide a valid number of hours (between 0 and 18).
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <label for="{{ form.max_queued.id_for_label }}" class="col-sm-3 col-form-label">Max No of Scheduled/Day:</label>
+            <div class="col-sm">{{ form.max_queued }}
+                <div class="invalid-feedback">
+                    Why you want to go beyond 10?.
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+    </form>
+</div>
+
+{% endblock %}

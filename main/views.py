@@ -1,0 +1,440 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from .forms import SignUpForm, AddSubForm, UserSettingsForm
+from .models import Record, UserSettings
+from datetime import datetime, timedelta, date
+from django.db.models import Q
+import calendar
+from django.db.models import Sum, F
+from collections import defaultdict
+
+
+
+def float_to_hours_minutes(value):
+    hours = int(value)
+    minutes = int((value - hours) * 60)
+    
+    if hours > 0 and minutes > 0:
+        return f"{hours}h {minutes}m"
+    elif hours > 0:
+        return f"{hours}h"
+    elif minutes > 0:
+        return f"{minutes}m"
+    else:
+        return "0m"
+
+
+
+
+def home(request):
+    if request.user.is_authenticated:
+        user_settings, created = UserSettings.objects.get_or_create(user=request.user)
+        records = Record.objects.filter(user=request.user)
+        now = datetime.now()
+        today = now.date()
+        completed_records = Record.objects.filter(user=request.user, queue_no__lt=0, done_at__date=today)
+        queued_records = Record.objects.filter(user=request.user, queue_no__gt=0,)
+        running_records = Record.objects.filter(user=request.user, queue_no=0)
+        total_completed = completed_records.count()
+        total_queued = queued_records.count()
+        total_running = running_records.count()
+        
+        # Initialize start_at to None
+        start_at = None
+        
+        if running_records.exists():
+            start_at = running_records[0].start_at.replace(tzinfo=None)
+        
+        daily_time = user_settings.daily_target_hours if user_settings else None
+        daily_hours = int(daily_time)
+        daily_minutes = int((60)*(daily_time-daily_hours))
+        
+        if daily_minutes > 0:
+            daily_target = str(daily_hours) + 'h ' + str(daily_minutes) + 'm'
+        else:
+            daily_target = str(daily_hours) + 'h '
+        
+        target_date = user_settings.target_date if user_settings else None
+        current_date = date.today()
+        
+        if target_date:
+            days_remaining = (target_date - current_date).days
+        else:
+            days_remaining = None  # No target date provided
+        
+        context = {
+            'daily_target': daily_target,
+            'max_queued': user_settings.max_queued if user_settings else None,
+            'target': user_settings.target_goal if user_settings else None,
+            'd_day': user_settings.target_date if user_settings else None,
+            'days_remaining': days_remaining,
+            'running_records': running_records,
+            'total_running': total_running,
+            'completed_records': completed_records,
+            'total_completed': total_completed,
+            'queued_records': queued_records,
+            'total_queued': total_queued,
+            'start_at': start_at,
+        }
+        return render(request, 'home.html', context)
+
+    # Process login form
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, "You Have Been Logged In!")
+            return redirect('home')
+        else:
+            messages.error(request, "There Was An Error Logging In, Please Try Again...")
+
+    return render(request, 'home.html')
+
+def logout_user(request):
+	logout(request)
+	messages.info(request, "You Have Been Logged Out...")
+	return redirect('home')
+
+
+
+def progress(request):
+    if request.user.is_authenticated:
+        user = request.user
+        now = datetime.now()
+        today = now.date()
+        n_days = int(today.weekday()) + 1
+
+        current_week_start = today - timedelta(days=today.weekday())
+        prev_week_start = current_week_start - timedelta(days=7)
+
+        # Get the first day of the current month
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = today
+        total_days_in_month = (last_day_of_month - first_day_of_month).days + 1
+        
+
+        running_records = Record.objects.filter(user=user, queue_no=0)
+
+        # Format the date ranges
+        this_week_range = f"{current_week_start.strftime('%d %b')} - {(current_week_start + timedelta(days=(n_days-1))).strftime('%d %b')}"
+        prev_week_range = f"{prev_week_start.strftime('%d %b')} - {(prev_week_start+timedelta(days=6)).strftime('%d %b')}"
+        date_list = [(first_day_of_month + timedelta(days=i)).strftime('%d') for i in range((today - first_day_of_month).days + 1)]
+    
+
+        this_week_hours = []
+        prev_week_hours = [0.0] * 7
+        this_month_hours =[]
+
+        this_week_records = Record.objects.filter(
+            user=user,
+            done_at__date__range=[current_week_start, current_week_start + timedelta(days=6)],
+            queue_no=-1
+        )
+
+        prev_week_records = Record.objects.filter(
+            user=user,
+            done_at__date__range=[prev_week_start, prev_week_start + timedelta(days=6)],
+            queue_no=-1
+        )
+
+        this_month_records = Record.objects.filter(
+            user=user,
+            done_at__date__range=[first_day_of_month, today],
+            queue_no=-1
+        )
+        todaysTotal = Record.objects.filter(
+            user=user,
+            done_at__date=today,
+            queue_no=-1
+        )
+
+
+        # Calculate hours for previous week
+        for i in range(7):
+            thatday = prev_week_start + timedelta(days=i)
+            t_time = 0
+            completed_thatday = prev_week_records.filter(done_at__date=thatday)
+            for record in completed_thatday:
+                t_time += round(record.time_taken.total_seconds() / 3600, 1)
+            prev_week_hours[i] = t_time
+
+        # Calculate hours for current week
+        for i in range(n_days):
+            thatday = current_week_start + timedelta(days=i)
+            t_time = 0
+            completed_thatday = this_week_records.filter(done_at__date=thatday)
+            if running_records.exists():
+                c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
+                c_time = round(c_seconds / 3600, 2)
+            else:
+                c_time = 0
+            for record in completed_thatday:
+                t_time += round(record.time_taken.total_seconds() / 3600, 1)
+            if i == (n_days - 1):
+                t_time = round((t_time + c_time), 2)
+            this_week_hours.append(t_time)
+
+
+        # Calculate hours for current month
+        for i in range(total_days_in_month):
+            thatday = first_day_of_month + timedelta(days=i)
+            t_time = 0
+            completed_thatday = this_month_records.filter(done_at__date=thatday)
+            if running_records.exists():
+                c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
+                c_time = round(c_seconds / 3600, 2)
+            else:
+                c_time = 0
+            for record in completed_thatday:
+                t_time += round(record.time_taken.total_seconds() / 3600, 1)
+            if i == (total_days_in_month - 1):
+                t_time = round((t_time + c_time), 2)
+            this_month_hours.append(t_time)
+        subname_totals = defaultdict(float)
+        for record in this_week_records:
+            subname = record.subname
+            hours = round(record.time_taken.total_seconds() / 3600,1)
+            subname_totals[subname] += hours
+        subname_totals_dict = dict(subname_totals)
+        thisWeekSub = list(subname_totals_dict.keys())  # Extract keys (subnames)
+        thisWeekHours = list(subname_totals_dict.values())  # Extract values (study hours)
+        thisWeekHoursTotal = float_to_hours_minutes(sum(thisWeekHours))
+        monthTotal=float_to_hours_minutes(sum(this_month_hours))
+        monthavg=float_to_hours_minutes(sum(this_month_hours)/total_days_in_month)
+        context = {
+            'this_week_hours': this_week_hours,
+            'prev_week_hours': prev_week_hours,
+            'this_month_hours': this_month_hours,
+            'this_week_range': this_week_range,
+            'prev_week_range': prev_week_range,
+            'date_list': date_list,
+            'thisWeekSub': thisWeekSub,
+            'thisWeekHours': thisWeekHours,
+            'thisWeekHoursTotal': thisWeekHoursTotal,
+            'total_this_week_records': this_week_records.count(),
+            'todaysTotal': todaysTotal.count(),
+            'monthTotal':monthTotal,
+            'monthavg':monthavg,
+            'this_month_records':this_month_records.count(),
+            'first_day_of_month':first_day_of_month,
+            'todaydate':today,
+            'current_week_start':current_week_start,
+        }
+
+        return render(request, 'progress.html', context)
+    else:
+        messages.success(request, "You Must Be Logged In To Do That...")
+        return redirect('home')
+
+def setting_page(request):
+    if request.user.is_authenticated:
+        user_settings, created = UserSettings.objects.get_or_create(user=request.user)
+        if request.method == 'POST':
+            form = UserSettingsForm(request.POST, instance=user_settings)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Settings updated successfully.")
+                return redirect('home')
+        else:
+            form = UserSettingsForm(instance=user_settings)
+
+        return render(request, 'setting_page.html', {'form': form})
+    else:
+        messages.error(request, "You must be logged in to access the settings page.")
+        return redirect('home')
+
+
+def register_user(request):
+	if request.method == 'POST':
+		form = SignUpForm(request.POST)
+		if form.is_valid():
+			form.save()
+			# Authenticate and login
+			username = form.cleaned_data['username']
+			password = form.cleaned_data['password1']
+			user = authenticate(username=username, password=password)
+			login(request, user)
+			messages.success(request, "You Have Successfully Registered! Welcome!")
+			# Create or retrieve UserSettings instance
+			user_settings, created = UserSettings.objects.get_or_create(user=user)
+			return redirect('home')
+	else:
+		form = SignUpForm()
+		return render(request, 'register.html', {'form':form})
+
+	return render(request, 'register.html', {'form':form})
+
+
+def date_range_view(request, start, end):
+    if request.user.is_authenticated:
+        try:
+            start_date = datetime.strptime(start, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end, '%Y-%m-%d').date()
+            records = Record.objects.filter(
+                user=request.user,
+                done_at__date__range=[start_date, end_date], 
+                queue_no=-1,
+                ).order_by('done_at')
+            formatted_start_date = start_date.strftime('%d %B %Y')
+            formatted_end_date = end_date.strftime('%d %B %Y')
+            total_days_duration = (end_date - start_date).days+1
+            total_time_duration =sum(record.time_taken.total_seconds() for record in records)/3600
+            daily_avg_duration=total_time_duration/total_days_duration
+            daily_avg_duration=float_to_hours_minutes(daily_avg_duration)
+            total_time_duration=float_to_hours_minutes(total_time_duration)
+            context = {
+                'records': records,
+                'formatted_start_date': formatted_start_date,
+                'formatted_end_date': formatted_end_date,
+                'total_days_duration':total_days_duration,
+                'total_time_duration':total_time_duration,
+                'daily_avg_duration':daily_avg_duration,
+
+            }
+            return render(request, 'date_range_records.html', context)
+        except ValueError:
+            # Handle invalid date format
+            messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
+            return redirect('home')
+    else:
+        messages.success(request, "You Must Be Logged In...")
+        return redirect('home')
+
+
+
+
+def sub_list(request, pk):
+    if request.user.is_authenticated:
+        sub_list = Record.objects.get(id=pk)
+        queue_no = sub_list.queue_no
+        if sub_list.queue_no == 0:
+            status = "Running"
+        elif sub_list.queue_no>=0:
+            status = "Queued"
+        else:
+            status = "Completed"
+
+        context = {
+            'sub_list': sub_list,
+            'status': status,
+            'queue_no': queue_no,
+        }
+
+        return render(request, 'record.html', context)
+    else:
+        messages.success(request, "You Must Be Logged In...")
+        return redirect('home')
+
+def mark_complete(request, pk):
+	if request.user.is_authenticated:
+		current_record = Record.objects.get(id=pk)
+		current_record.queue_no=-1
+		current_record.done_at=datetime.now()
+		start_at = current_record.start_at.replace(tzinfo=None)
+		done_at = current_record.done_at.replace(tzinfo=None)
+		total_time = (done_at-start_at).total_seconds()
+		current_record.time_taken = timedelta(seconds=total_time)
+		current_record.save()
+		messages.success(request, f"Completed Successfully - {current_record.topic}  in {current_record.subname}")
+		return redirect('home')
+	else:
+		messages.success(request, "You Must Be Logged In To Do That...")
+		return redirect('home')
+
+def start_subject(request, pk):
+	if request.user.is_authenticated:
+		running_records = Record.objects.filter(user=request.user, queue_no=0)
+		if not running_records.exists():
+			current_record = Record.objects.get(id=pk)
+			current_record.queue_no=0
+			current_record.start_at=datetime.now()
+			current_record.save()
+			messages.success(request, f"Hurray! , {current_record.topic}  of {current_record.subname} Started...")
+		else:
+			messages.error(request, f"Can't Start, Currently you are doing {running_records[0].subname}")
+		return redirect('home') 
+	else:
+		messages.error(request, "You Must Be Logged In To Do That...")
+		return redirect('home') 
+
+def delete_record(request, pk):
+	if request.user.is_authenticated:
+		delete_it = Record.objects.get(id=pk)
+		delete_it.delete()
+		messages.info (request, f"{delete_it.subname}, Deleted...")
+		return redirect('home')
+	else:
+		messages.success(request, "You Must Be Logged In To Do That...")
+		return redirect('home')
+
+
+def add_record(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "You Must Be Logged In...")
+        return redirect('home')
+    user_settings, created = UserSettings.objects.get_or_create(user=request.user)
+    form = AddSubForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        record = form.save(commit=False)
+        record.user=request.user
+        # Capitalize the first letter of each word in subname and topic
+        record.subname = form.cleaned_data['subname'].title()
+        record.topic = form.cleaned_data['topic'].title()
+        running_records = Record.objects.filter(user=request.user, queue_no=0)
+        queued_records = Record.objects.filter(user=request.user, queue_no__gt=0)
+
+        if not running_records.exists():
+            record.queue_no = 0
+            record.start_at = datetime.now()
+            record.save()
+        else:
+            if queued_records.count() < user_settings.max_queued:
+                record.queue_no = queued_records.count() + 1
+                record.save()
+            else:
+                messages.error(request, "Maximum subjects added for today. Complete them first.")
+                return redirect('home')
+        messages.success(request, "Subject Added...")
+        return redirect('home')
+    return render(request, 'add_record.html', {'form': form})
+
+
+def update_record(request, pk):
+    if not request.user.is_authenticated:
+        messages.error(request, "You Must Be Logged In...")
+        return redirect('home')
+
+    current_record = Record.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        form = AddSubForm(request.POST, instance=current_record)	
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.user=request.user
+            record.subname = form.cleaned_data['subname'].title()
+            record.topic = form.cleaned_data['topic'].title()
+            record.save()
+            messages.success(request, "Subject Has Been Updated!")
+            return redirect('home')
+    else:
+        form = AddSubForm(instance=current_record)
+
+    return render(request, 'update_record.html', {'form': form})
+
+
+def search_page(request):
+    if request.user.is_authenticated:
+        user=request.user
+
+        context = {
+
+        }
+        return render(request, 'search_page.html', context)
+    else:
+        messages.success(request, "You Must Be Logged In...")
+        return redirect('home')

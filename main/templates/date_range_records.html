@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load main_extras %}
+{% block content %}
+<div class="card p-3 mb-2">
+  <p class="card-title text-center text-success h3">During</p>
+  <p class="card-title text-center h5"><span class="text-primary">{{ formatted_start_date }}</span> to <span class="text-primary">{{ formatted_end_date }}</span></p>
+
+    <div class="d-flex justify-content-between">
+        <div>
+            <p class="card-title text-start h6">Total Days: <span class="text-primary">{{total_days_duration}}</span></p>
+            <p class="card-title text-start h6">Total Subjects: <span class="text-primary">{{records|length}}</span></p>
+        </div>
+        <div>
+            <p class="card-title text-start h6">Total Time: <span class="text-primary">{{total_time_duration}}</span></p>
+            <p class="card-title text-start h6">Avg Daily Hours: <span class="text-primary">{{daily_avg_duration}}</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3 mb-2">
+   <table class="table table-hover table-sm text-start table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th >Time</th>
+            <th>Subject/Topic</th>
+            <th>Total Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
+            <td>{{ record.done_at|date }}</td>
+            <td>{{ record.done_at|time }}</td>
+            <td><strong>{{ record.subname }}</strong> / {{ record.topic }}</td>
+            <td>{{ record.time_taken|format_timedelta }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No records found for this date range.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<style type="text/css">
+          .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+
+</style>
+{% endblock %}

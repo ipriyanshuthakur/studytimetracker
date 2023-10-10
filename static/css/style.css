@@ -1,0 +1,14 @@
+/* styles<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">.css */
+
+/* Navbar Link Hover Color */
+.navbar-nav .nav-item .nav-link:hover {
+    color: #007bff; /* Change this to your desired hover color */
+}
+
+main {
+    margin-top: 60px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-top: 10px;
+}
+

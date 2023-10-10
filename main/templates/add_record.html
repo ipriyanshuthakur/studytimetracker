@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <br/>
+    <h2>Add New Subject</h2>
+    <br/>
+
+    <form method="POST" action="{% url 'add_record' %}" >
+        {% csrf_token %}
+
+        <div class="row mb-2">
+            <label for="subname" class="col-sm-3 col-form-label">Subject Name:</label>
+            <div class="col-sm">
+                {{ form.subname }}
+                <div class="invalid-feedback">
+                    Please provide your target goal.
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <label for="topic" class="col-sm-3 col-form-label">Topic:</label>
+            <div class="col-sm">
+                {{ form.topic }}
+                <div class="invalid-feedback">
+                    Please provide your target goal.
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <button type="submit" class="btn btn-primary">Add Subject</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+
+
+{% endblock %}

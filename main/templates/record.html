@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load main_extras %}
+{% block content %}
+
+<div class="card card-container d-flex justify-content-center">
+    <div class="card-body p-5 ">
+        <div class="text-start card-title">
+             <p class="text-primary text-center h5">{{ sub_list.subname }}</p>
+            <p class="card-text"><strong>Topic: </strong>{{ sub_list.topic }}</p>
+            <p class="card-text"><strong>Status: </strong>{{ status }}</p>
+            {% if status == "Completed" %}
+            <p class="card-text"><strong>Started At: </strong>{{ sub_list.start_at }}</p>
+            <p class="card-text"><strong>Done At: </strong>{{ sub_list.done_at }}</p>
+            <p class="card-text"><strong>Time Taken: </strong>{{ sub_list.time_taken|format_timedelta }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<br>
+<div class="card p-3">
+<div class="d-flex justify-content-center">
+<button class="btn btn-success mx-2" onclick="goBack()">Back</button>
+<a href="{% url 'home' %}" class="btn btn-primary mx-2">Home</a>
+<button type="button" class="btn btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#deletethis">Delete</button>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade text-left" id="deletethis" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Delete</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure? it will delete <span class="text-primary">{{ record.topic }}, </span><span class="text-success">{{ record.subname }}</span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">No</button>
+        <a href="{% url 'delete_record' sub_list.id %}" class="btn btn-danger btn-sm">Yes, Delete it!</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<style>
+.card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.modal {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+</style>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+
+{% endblock %}
