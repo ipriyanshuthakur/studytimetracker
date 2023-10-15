@@ -1,53 +1,65 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load main_extras %}
 {% load static %}
 {% if user.is_authenticated %}
 
 
 <div class="card p-3 mb-2">
   <p class="card-title text-center text-success h3">At A Glance</p>
-  <p class="card-title text-center text-primary h4">{{ dateToday }}</p>
+  <p class="card-title text-center h4">Today's <span class="text-primary">{{ dateToday }}</span></p>
 </div>
-<div class="card p-3 mb-2">
-   <table class="table table-hover table-sm text-center">
-    <thead>
-        <tr>
-            <th class="text-start"></th>
-            <th>Time</th>
-            <th>Avg Time</th>
-            <th>Subjects</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'home' %}'">
-            <td class="text-start">Today</td>
-            <td>{{total_time}}</td>
-            <td>{{total_time}}</td>
-            <td>{{todaysTotal}}</td>
-        </tr>
-        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start todaydate %}'">
-            <td class="text-start">This Week</td>
-            <td>{{week_time_taken}}</td>
-            <td>{{week_avg}}</td>
-            <td>{{total_this_week_records}}</td>
-        </tr>
-        <tr style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' first_day_of_month todaydate %}'">
-            <td class="text-start">This Month</td>
-            <td>{{monthTotal}}</td>
-            <td>{{monthavg}}</td>
-            <td>{{this_month_records}}</td>
-        </tr>
-    </tbody>
-</table>
 
+<div class="row text-center">
+    
+        <div class="col-6 col-lg-3 mb-2">
+          <div style="cursor: pointer;" onclick="window.location.href='{% url 'records_progress' todaysDate %}'" class="card">
+            <div class="card-body">
+                <h6>Today's Time</h6>
+                <h6 class="text-primary" style="font-size: 30px;">{{ total_time }}</h6>
+            </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-lg-3 mb-2">
+          <div style="cursor: pointer;" onclick="window.location.href='{% url 'records_progress' todaysDate %}'" class="card">
+            <div class="card-body">
+                <h6>Today's Subjects</h6>
+                <h6 class="text-primary" style="font-size: 30px;">{{ todaysTotal }}</h6>
+            </div>
+          </div>
+        </div>
+          <div class="col-6 col-lg-3 mb-2">
+            <div  style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start todaydate %}'" class="card">
+            <div class="card-body">
+                <h6>This Week' avg</h6>
+                <h6 class="text-primary" style="font-size: 30px;">{{week_avg}}</h6>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-2">
+          <div  style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' first_day_of_month todaydate %}'" class="card">
+            <div class="card-body">
+                <h6>This Month' avg</h6>
+                <h6 class="text-primary" style="font-size: 30px;">{{monthavg}}</h6>
+            </div>
+          </div>
+        </div>
 </div>
+
+
+
+
+
+
 
 
 <div class="row">
       <div class="col-12 col-md-6 col-lg-6">
         <div class="card mb-2">
             <div class="card-body">
-               <p class="card-title text-center h4">This Week <span class="text-primary">{{ this_week_range }}</span> </p>
+               <p style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start todaydate %}'" class="card-title text-center h4">This Week <span class="text-primary">{{ this_week_range }}</span> </p>
+               <p class="card-title text-center h5">Avg: <span class="text-success">{{week_avg}}</span> Total hrs: <span class="text-success">{{week_time_taken}}</span></p>
                 <div class="chartother">
                     <canvas id="myChart2"></canvas>
                 </div>
@@ -57,7 +69,8 @@
     <div class="col-12 col-md-6 col-lg-6">
         <div class="card mb-2">
             <div class="card-body">
-                <p class="card-title text-center h4">This & Last Week Daily Study Hrs</p>
+                <p style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start|previous_week_start todaydate %}'" class="card-title text-center h4"><span class="text-primary">This</span> & <span class="text-success">Last</span> Week<br>Daily Study Hours</p>
+                 
                 <div class="chartother">
                     <canvas id="myChart3"></canvas>
                 </div>
@@ -67,7 +80,10 @@
 </div>
 
 <div class="card p-3 mb-2">
-  <p class="card-title text-center text-success h3">This Month <span class="text-primary">{{ monthNow }}</span></p>
+  <p style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' first_day_of_month todaydate %}'" class="card-title text-center text-primary h3">{{ monthNow }}</p>
+
+   <p class="card-title text-center h5">Avg: <span class="text-success">{{monthavg}}</span> Total hrs: <span class="text-success">{{monthTotal}}</span></p>
+
     <div class="chartMonth">
       <canvas id="myChart"></canvas>
     </div>
@@ -75,15 +91,14 @@
 </div>
 
 
-
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 const ctx2 = document.getElementById('myChart2').getContext('2d'); // Get the canvas element by ID
 var subnames = {{ thisWeekSub|safe }};
-var studyHours = {{ thisWeekHours|safe }};// Parse the JSON data
+var studyHours = {{ thisWeekHours|safe }};
+var barbgcolors = {{ barbgcolors|safe }};
+var barcolors = {{ barcolors|safe }};
 
 // Create a bar chart
 new Chart(ctx2, {
@@ -94,8 +109,8 @@ new Chart(ctx2, {
       label: 'Study Hours',
       data: studyHours, // Study hours as data
       borderWidth: 1,
-      backgroundColor: 'rgba(0, 123, 255, 0.6)',
-      borderColor: 'rgba(0, 123, 255, 1)',
+      backgroundColor: barbgcolors,
+      borderColor: barcolors,
       maxBarThickness: 20,
       borderRadius: 20,
       borderSkipped: false,

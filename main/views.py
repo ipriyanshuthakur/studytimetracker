@@ -3,15 +3,16 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SignUpForm, AddSubForm, UserSettingsForm
+from .forms import SignUpForm, AddSubForm, UserSettingsForm, MySearchForm
 from .models import Record, UserSettings
 from datetime import datetime, timedelta, date
 from django.db.models import Q
 import calendar
 from django.db.models import Sum, F
 from collections import defaultdict
-
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 def float_to_hours_minutes(value):
     hours = int(value)
@@ -28,23 +29,21 @@ def float_to_hours_minutes(value):
 
 
 
-
+@csrf_exempt
 def home(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
         records = Record.objects.filter(user=request.user)
         now = datetime.now()
         today = now.date()
-        completed_records = Record.objects.filter(user=request.user, queue_no__lt=0, done_at__date=today)
+        completed_records = Record.objects.filter(user=request.user, queue_no__lt=0, start_at__date=today)
         queued_records = Record.objects.filter(user=request.user, queue_no__gt=0,)
         running_records = Record.objects.filter(user=request.user, queue_no=0)
         total_completed = completed_records.count()
         total_queued = queued_records.count()
         total_running = running_records.count()
-        
         # Initialize start_at to None
         start_at = None
-        
         if running_records.exists():
             start_at = running_records[0].start_at.replace(tzinfo=None)
         
@@ -101,7 +100,7 @@ def logout_user(request):
 	return redirect('home')
 
 
-
+@csrf_exempt
 def progress(request):
     if request.user.is_authenticated:
         user = request.user
@@ -132,24 +131,24 @@ def progress(request):
 
         this_week_records = Record.objects.filter(
             user=user,
-            done_at__date__range=[current_week_start, current_week_start + timedelta(days=6)],
+            start_at__date__range=[current_week_start, current_week_start + timedelta(days=6)],
             queue_no=-1
         )
 
         prev_week_records = Record.objects.filter(
             user=user,
-            done_at__date__range=[prev_week_start, prev_week_start + timedelta(days=6)],
+            start_at__date__range=[prev_week_start, prev_week_start + timedelta(days=6)],
             queue_no=-1
         )
 
         this_month_records = Record.objects.filter(
             user=user,
-            done_at__date__range=[first_day_of_month, today],
+            start_at__date__range=[first_day_of_month, today],
             queue_no=-1
         )
         todaysTotal = Record.objects.filter(
             user=user,
-            done_at__date=today,
+            start_at__date=today,
             queue_no=-1
         )
 
@@ -158,7 +157,7 @@ def progress(request):
         for i in range(7):
             thatday = prev_week_start + timedelta(days=i)
             t_time = 0
-            completed_thatday = prev_week_records.filter(done_at__date=thatday)
+            completed_thatday = prev_week_records.filter(start_at__date=thatday)
             for record in completed_thatday:
                 t_time += round(record.time_taken.total_seconds() / 3600, 1)
             prev_week_hours[i] = t_time
@@ -167,7 +166,7 @@ def progress(request):
         for i in range(n_days):
             thatday = current_week_start + timedelta(days=i)
             t_time = 0
-            completed_thatday = this_week_records.filter(done_at__date=thatday)
+            completed_thatday = this_week_records.filter(start_at__date=thatday)
             if running_records.exists():
                 c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
                 c_time = round(c_seconds / 3600, 2)
@@ -181,10 +180,11 @@ def progress(request):
 
 
         # Calculate hours for current month
+
         for i in range(total_days_in_month):
             thatday = first_day_of_month + timedelta(days=i)
             t_time = 0
-            completed_thatday = this_month_records.filter(done_at__date=thatday)
+            completed_thatday = this_month_records.filter(start_at__date=thatday)
             if running_records.exists():
                 c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
                 c_time = round(c_seconds / 3600, 2)
@@ -206,6 +206,21 @@ def progress(request):
         thisWeekHoursTotal = float_to_hours_minutes(sum(thisWeekHours))
         monthTotal=float_to_hours_minutes(sum(this_month_hours))
         monthavg=float_to_hours_minutes(sum(this_month_hours)/total_days_in_month)
+        
+        barNums=len(thisWeekSub)
+        barbgcolors=['rgba(0, 123, 255, 0.6)']*barNums
+        barcolors=['rgba(0, 123, 255, 1)']*barNums
+        if running_records.exists():
+            runing_subject=running_records[0].subname
+            running_time = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
+            running_time_hrs=round(running_time / 3600,2)
+            thisWeekSub.insert(0,runing_subject)
+            thisWeekHours.insert(0,running_time_hrs)
+            barbgcolors.insert(0,'rgba(40, 167, 69, 0.5)')
+            barcolors.insert(0,'rgba(40, 167, 69, 1)')
+      
+
+
         context = {
             'this_week_hours': this_week_hours,
             'prev_week_hours': prev_week_hours,
@@ -224,13 +239,16 @@ def progress(request):
             'first_day_of_month':first_day_of_month,
             'todaydate':today,
             'current_week_start':current_week_start,
+            'barbgcolors':barbgcolors,
+            'barcolors':barcolors
+
         }
 
         return render(request, 'progress.html', context)
     else:
         messages.success(request, "You Must Be Logged In To Do That...")
         return redirect('home')
-
+@csrf_exempt
 def setting_page(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
@@ -248,7 +266,7 @@ def setting_page(request):
         messages.error(request, "You must be logged in to access the settings page.")
         return redirect('home')
 
-
+@csrf_exempt
 def register_user(request):
 	if request.method == 'POST':
 		form = SignUpForm(request.POST)
@@ -269,31 +287,68 @@ def register_user(request):
 
 	return render(request, 'register.html', {'form':form})
 
-
+@csrf_exempt
 def date_range_view(request, start, end):
     if request.user.is_authenticated:
+        user=request.user
+        now = datetime.now()
+        today=now.date()
         try:
             start_date = datetime.strptime(start, '%Y-%m-%d').date()
             end_date = datetime.strptime(end, '%Y-%m-%d').date()
+            duration_dates = [(start_date + timedelta(days=i)).strftime('%d/%m') for i in range((end_date - start_date).days + 1)]
+
+
             records = Record.objects.filter(
                 user=request.user,
-                done_at__date__range=[start_date, end_date], 
+                start_at__date__range=[start_date, end_date], 
                 queue_no=-1,
-                ).order_by('done_at')
+                ).order_by('start_at')
+            running_records = Record.objects.filter(user=user, queue_no=0)
             formatted_start_date = start_date.strftime('%d %B %Y')
             formatted_end_date = end_date.strftime('%d %B %Y')
-            total_days_duration = (end_date - start_date).days+1
-            total_time_duration =sum(record.time_taken.total_seconds() for record in records)/3600
+            total_days_duration = len(duration_dates)
+            duration_hours =[]
+            for i in range(total_days_duration):
+                thatday = start_date + timedelta(days=i)
+                t_time = 0
+                completed_thatday = records.filter(start_at__date=thatday)
+                if thatday==today and running_records.exists():
+                    c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
+                    c_time = round(c_seconds / 3600, 2)
+                else:
+                    c_time = 0
+                for record in completed_thatday:
+                    t_time += round(record.time_taken.total_seconds() / 3600, 1)
+                if i == (total_days_duration - 1):
+                    t_time = round((t_time + c_time), 2)
+                duration_hours.append(t_time)
+
+            subjects = sorted(set(record.subname for record in records))
+            grouped_records = {subject: [] for subject in subjects}
+            for record in records:
+                grouped_records[record.subname].append(record)
+          
+
+            total_time_duration=sum(duration_hours)
             daily_avg_duration=total_time_duration/total_days_duration
             daily_avg_duration=float_to_hours_minutes(daily_avg_duration)
             total_time_duration=float_to_hours_minutes(total_time_duration)
+            start_at = None
+            if running_records.exists():
+                start_at = running_records[0].start_at.replace(tzinfo=None)
             context = {
                 'records': records,
+                'grouped_records':grouped_records,
                 'formatted_start_date': formatted_start_date,
                 'formatted_end_date': formatted_end_date,
                 'total_days_duration':total_days_duration,
                 'total_time_duration':total_time_duration,
                 'daily_avg_duration':daily_avg_duration,
+                'duration_hours':duration_hours,
+                'duration_dates': duration_dates,
+                'running_records':running_records,
+                'start_at':start_at,
 
             }
             return render(request, 'date_range_records.html', context)
@@ -307,7 +362,7 @@ def date_range_view(request, start, end):
 
 
 
-
+@csrf_exempt
 def sub_list(request, pk):
     if request.user.is_authenticated:
         sub_list = Record.objects.get(id=pk)
@@ -329,7 +384,7 @@ def sub_list(request, pk):
     else:
         messages.success(request, "You Must Be Logged In...")
         return redirect('home')
-
+@csrf_exempt
 def mark_complete(request, pk):
 	if request.user.is_authenticated:
 		current_record = Record.objects.get(id=pk)
@@ -345,7 +400,7 @@ def mark_complete(request, pk):
 	else:
 		messages.success(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
-
+@csrf_exempt
 def start_subject(request, pk):
 	if request.user.is_authenticated:
 		running_records = Record.objects.filter(user=request.user, queue_no=0)
@@ -361,7 +416,7 @@ def start_subject(request, pk):
 	else:
 		messages.error(request, "You Must Be Logged In To Do That...")
 		return redirect('home') 
-
+@csrf_exempt
 def delete_record(request, pk):
 	if request.user.is_authenticated:
 		delete_it = Record.objects.get(id=pk)
@@ -372,7 +427,7 @@ def delete_record(request, pk):
 		messages.success(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
 
-
+@csrf_exempt
 def add_record(request):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -403,7 +458,7 @@ def add_record(request):
         return redirect('home')
     return render(request, 'add_record.html', {'form': form})
 
-
+@csrf_exempt
 def update_record(request, pk):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -426,15 +481,124 @@ def update_record(request, pk):
 
     return render(request, 'update_record.html', {'form': form})
 
-
+@csrf_exempt
 def search_page(request):
     if request.user.is_authenticated:
         user=request.user
+        now = datetime.now()
+        today = now.date()
+        thisYear=now.year
+        thisMonth=now.month
+        firstDayMonth=today.replace(day=1)
+        thisYearMonths=[]
+        thisMonthDays=[]
+        for month in range(1, thisMonth):          
+            date = datetime(thisYear, month, 1)
+            month_name = date.strftime('%B')
+            thisYearMonths.append(month_name)
+
+        thisMonthDays = [(firstDayMonth + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((today - firstDayMonth).days + 1)]
+
+        form = MySearchForm(request.POST or None)
+        if request.method == 'POST':
+            if form.is_valid():
+                date_range_start = form.cleaned_data.get('date_range_start')
+                date_range_end = form.cleaned_data.get('date_range_end')
+                single_date = form.cleaned_data.get('single_date')
+                subject = form.cleaned_data.get('subject')
+
+                if date_range_start and date_range_end:
+                    if date_range_start<date_range_end:
+                        url = reverse('date_range_view', args=[date_range_start, date_range_end])
+                        return redirect(url)
+                    elif date_range_start == date_range_end:
+                        url = reverse('records_progress', args=[date_range_start])
+                        return redirect(url)
+                    else:
+                        messages.error(request, "Initial date should not exceeds end Date")
+
+                elif single_date:
+                    url = reverse('records_progress', args=[single_date])
+                    return redirect(url)
+
+                
+            
 
         context = {
+            'thisYearMonths':thisYearMonths,
+            'thisMonthDays':thisMonthDays,
+            'thisYear':thisYear,
+            'form': form,
 
         }
         return render(request, 'search_page.html', context)
+    else:
+        messages.success(request, "You Must Be Logged In...")
+        return redirect('home')
+
+
+
+@csrf_exempt
+def records_progress(request, sDate):
+    if request.user.is_authenticated:
+        user=request.user
+        now = datetime.now()
+        today=now.date()
+        try:
+            recordsDate = datetime.strptime(sDate, '%Y-%m-%d').date()
+            records = Record.objects.filter(
+                user=request.user,
+                start_at__date=recordsDate, 
+                queue_no=-1,
+                ).order_by('start_at')
+            running_records = Record.objects.filter(user=user, queue_no=0)
+            subnames = defaultdict(float)
+            for subject in records:
+                subname = subject.subname
+                hours = round(subject.time_taken.total_seconds() / 3600,2)
+                subnames[subname] += hours
+            subname_totals_dict = dict(subnames)
+            subjects_list = list(subname_totals_dict.keys())  # Extract keys (subnames)
+            subject_hours = list(subname_totals_dict.values())  # Extract values (study hours)
+            barNums=len(subjects_list)
+            barbgcolors=['rgba(0, 123, 255, 0.6)']*barNums
+            barcolors=['rgba(0, 123, 255, 1)']*barNums
+            if today==recordsDate and running_records.exists():
+                runing_subject=running_records[0].subname
+                running_time = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
+                running_time_hrs=round(running_time / 3600,2)
+                subjects_list.insert(0,runing_subject)
+                subject_hours.insert(0,running_time_hrs)
+                barbgcolors.insert(0,'rgba(40, 167, 69, 0.5)')
+                barcolors.insert(0,'rgba(40, 167, 69, 1)')
+            total_studied = float_to_hours_minutes(sum(subject_hours))
+            subjects = sorted(set(record.subname for record in records))
+            grouped_records = {subject: [] for subject in subjects}
+            for record in records:
+                grouped_records[record.subname].append(record)
+            
+            start_at = None
+            if running_records.exists():
+                start_at = running_records[0].start_at.replace(tzinfo=None)
+
+            context = {
+                'records': records,
+                'grouped_records':grouped_records,
+                'running_records':running_records,
+                'recordsDate':recordsDate,
+                'total_studied':total_studied,
+                'subjects_list':subjects_list,
+                'subject_hours':subject_hours,
+                'barbgcolors':barbgcolors,
+                'barcolors':barcolors,
+                'start_at':start_at,
+
+            }
+            return render(request, 'records_progress.html', context)
+        except ValueError:
+            # Handle invalid date format
+            messages.error(request, "Invalid date format")
+            return redirect('search_page')
     else:
         messages.success(request, "You Must Be Logged In...")
         return redirect('home')

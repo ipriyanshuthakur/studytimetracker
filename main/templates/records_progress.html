@@ -1,60 +1,66 @@
 {% extends 'base.html' %}
 {% load main_extras %}
 {% block content %}
+
 <div class="card p-3 mb-2">
-  <p class="card-title text-success text-center h3">{{ formatted_start_date }}  <span class="text-primary">to</span> {{ formatted_end_date }}</p>
-
-   <p class="card-title text-center h3">Days:  <span class="text-primary">{{total_days_duration}}</span></p>
+  {% if recordsDate|date:"d F Y" == dateToday%}
+  <p class="card-title text-center text-primary h3">Today's</span></p>
+  {%endif%}
+  <p class="card-title text-center text-success h3">{{ recordsDate|date:"d F Y" }}</span></p>
 </div>
-
-
 
 <div class="mb-2 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <h6>Subjects</h6>
-            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{grouped_records.items|length}}</h6>
-            
-            <h6>Total Topics</h6>
-            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{records|length}} 
-            {% if formatted_end_date == dateToday and running_records%}
-                <span class="text-success"> + {{running_records|length}}</span>
-            {% endif %}</h6>   
-            
+            <h6>Completed Subjects</h6>
+            <h6  class="text-primary" style=" font-size: 30px; ">{{grouped_records.items|length}}</h6>
+            <h6>Topics</h6>
+            <h6  class="text-primary" style=" font-size: 30px; ">{{records|length}}</h6>
+
         </div>
     </div>
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
             <h6>Total Time</h6>
-            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{total_time_duration}}</h6>
-            <h6>Daily Average</h6>
-            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{daily_avg_duration}}</h6>
+            <h6 id="total-time" class="text-primary" style=" font-size: 30px; ">{{total_studied}}</h6>
+            {% if recordsDate|date:"d F Y" == dateToday and running_records%}
+            <h6>Running</h6>
+            <h6 class="text-success" style=" font-size: 30px; ">{{running_records|length}} ><span id="running-time"></span></h6>
+            {%endif%}
+
+            
         </div>
     </div>
 </div>
 
 
 <div class="card p-3 mb-2">
-    <h5 class="text-center">Daily Studied Time in hours</h5>
-    <div class="chartDurationC">
-      <canvas id="chartDuration"></canvas>
+    <div class="chartSubjectsC">
+      <canvas id="chartSubjects"></canvas>
     </div>
 </div>
 
-{% if formatted_end_date == dateToday and running_records%}
+{% if recordsDate|date:"d F Y" == dateToday and running_records%}
 <div class="card p-3 mb-2 ">
   {% for running in running_records%}
-    <h5 class="text-center">Currently Running</h5>
-    <hr style="margin-top: 0;">
+  <p class="fs-4 h5 text-center">Currently Running</span></p>
   <div class="d-flex justify-content-evenly">
   <p class="card-title h5"><span class="text-success">{{ running.subname}}</span></p>
   <p class="card-title h5"><span class="text-success">{{ running.topic}}</span></p>
   <p class="card-title h5"><span class="text-success">{{ running.start_at.time}}</span></p>
-  <p class="card-title h5"><span class="text-success"><span id="running-time"></span></p>
+  <p class="card-title h5"><span class="text-success"><span id="running-time2"></span></p>
   </div>
   {%endfor%}
 </div>
 {%endif%}
+
+
+
+
+
+
+
+
 
 {% if records %}
 <div class="row">
@@ -138,20 +144,55 @@
 </div>
 {% endif %}
 
+
+
+<script>
+    function updateTimeElapsed() {
+        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s' }}");
+        var current_time = new Date();
+        var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
+        var hours = Math.floor(elapsed_time_seconds / 3600);
+        var minutes = Math.floor((elapsed_time_seconds % 3600) / 60);
+        var seconds = elapsed_time_seconds % 60;
+        
+        var time_elapsed_formatted = "";
+        var time_elapsed_formatted2 = "";
+        if (hours > 0) {
+            time_elapsed_formatted += hours + 'h ';
+        }
+        
+        time_elapsed_formatted += minutes + 'm ';
+        time_elapsed_formatted2 =time_elapsed_formatted  + seconds + 's';
+        document.getElementById("running-time").textContent = time_elapsed_formatted;
+        document.getElementById("running-time2").textContent = time_elapsed_formatted2;
+    }
+    
+    updateTimeElapsed();
+    setInterval(updateTimeElapsed, 1000);
+</script>
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('chartDuration');
-  var datelist = {{ duration_dates|safe }};
-  var monthhours = {{ duration_hours|safe }};
+  const ctx = document.getElementById('chartSubjects');
+  var subjects_list = {{ subjects_list|safe }};
+  var subject_hours = {{ subject_hours|safe }};
+  var barbgcolors = {{ barbgcolors|safe }};
+  var barcolors = {{ barcolors|safe }};
   new Chart(ctx, {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels: datelist,
+      labels: subjects_list,
       datasets: [{
         label: 'Hours',
-        data: monthhours,
+        data: subject_hours,
         borderWidth: 1,
-        tension: 0.2,
+        backgroundColor: barbgcolors,
+        borderColor: barcolors,
+        maxBarThickness: 20,
+        borderRadius: 20,
+        borderSkipped: false,
+        barPercentage: 0.5,
       }]
     },
     options: {
@@ -170,51 +211,24 @@
     plugins: {
       legend: {
 
-        align: 'end', // Align the legend to the start of the chart area
-        labels: {
-          usePointStyle: true, // Use point style (circle) for legend
-        }
+        display: false
       }
     }
     }
   });
 </script>
 
-<script>
-    function updateTimeElapsed() {
-        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s' }}");
-        var current_time = new Date();
-        var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
-        var hours = Math.floor(elapsed_time_seconds / 3600);
-        var minutes = Math.floor((elapsed_time_seconds % 3600) / 60);
-        var seconds = elapsed_time_seconds % 60;
-        
-        var time_elapsed_formatted = "";
-    
-        if (hours > 0) {
-            time_elapsed_formatted += hours + 'h ';
-        }
-        
-        time_elapsed_formatted += minutes + 'm '  + seconds + 's';
-        
-        document.getElementById("running-time").textContent = time_elapsed_formatted;
-
-    }
-    
-    updateTimeElapsed();
-    setInterval(updateTimeElapsed, 1000);
-</script>
 
 
 <style type="text/css">
           .card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border: ;
+            border: none;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .chartDurationC{
+        .chartSubjectsC{
 
         height: 250px; /* Adjust this value to control the height */
         }

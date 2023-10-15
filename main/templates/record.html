@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 {% load main_extras %}
 {% block content %}
+<div class="col-md-6 offset-md-3">
+    
 
 <div class="card card-container d-flex justify-content-center">
     <div class="card-body p-5 ">
         <div class="text-start card-title">
-             <p class="text-primary text-center h5">{{ sub_list.subname }}</p>
+             <p class="text-success text-center h4">{{ sub_list.subname }}</p>
             <p class="card-text"><strong>Topic: </strong>{{ sub_list.topic }}</p>
             <p class="card-text"><strong>Status: </strong>{{ status }}</p>
             {% if status == "Completed" %}
@@ -26,21 +28,17 @@
 <button type="button" class="btn btn-danger mx-2" data-bs-toggle="modal" data-bs-target="#deletethis">Delete</button>
 </div>
 </div>
-
+</div>
 <!-- Modal -->
 <div class="modal fade text-left" id="deletethis" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Delete</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
       <div class="modal-body">
-        <p>Are you sure? it will delete <span class="text-primary">{{ record.topic }}, </span><span class="text-success">{{ record.subname }}</span></p>
+        <h5>Want to delete? <span class="text-primary">{{ sub_list.topic }}, </span><span class="text-success">{{ sub_list.subname }}</span></h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">No</button>
-        <a href="{% url 'delete_record' sub_list.id %}" class="btn btn-danger btn-sm">Yes, Delete it!</a>
+        <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal">No</button>
+        <a href="{% url 'delete_record' sub_list.id %}" class="btn btn-danger rounded-pill">Yes, Delete it!</a>
       </div>
     </div>
   </div>
@@ -59,7 +57,14 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+.modal-content {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 

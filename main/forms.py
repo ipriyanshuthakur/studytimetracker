@@ -86,3 +86,47 @@ class AddSubForm(forms.ModelForm):
         exclude = ("user", "queue_no", "created_at","start_at", "done_at")
 
 
+from django import forms
+from datetime import datetime
+
+class MySearchForm(forms.Form):
+    date_range_start = forms.DateField( 
+        required=False, 
+        widget=forms.DateInput(attrs={'placeholder':'From:','class': 'form-control', 'type': 'date', 'max': datetime.now().date()})
+    )
+    date_range_end = forms.DateField(
+        required=False, 
+        widget=forms.DateInput(attrs={'placeholder':'To:', 'class': 'form-control', 'type': 'date', 'max': datetime.now().date()})
+    )
+    single_date = forms.DateField(
+        required=False, 
+        widget=forms.DateInput(attrs={'placeholder':'Enter a Date', 'class': 'form-control', 'type': 'date', 'max': datetime.now().date()}),
+    	label='Enter a Date', 
+    )
+    findsubject = forms.CharField(
+        max_length=100, 
+        widget=forms.TextInput(attrs={"placeholder": "Subject Name", "class": "form-control"}),
+        label='Subject Name', 
+        required=False
+    )
+    findtopic = forms.CharField(
+    	max_length=100, 
+        widget=forms.TextInput(attrs={"placeholder": "Topic Name", "class": "form-control"}),
+        label='Topic Name', 
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(MySearchForm, self).__init__(*args, **kwargs)
+        # Set the max attribute for the DateInput fields to the current date
+        self.fields['date_range_start'].widget.attrs['max'] = datetime.now().date()
+        self.fields['date_range_end'].widget.attrs['max'] = datetime.now().date()
+        self.fields['single_date'].widget.attrs['max'] = datetime.now().date()
+
+
+
+
+
+
+
+

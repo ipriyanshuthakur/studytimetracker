@@ -1,36 +1,42 @@
+
 {% extends 'base.html' %}
 {% block content %}
 
 <div class="col-md-6 offset-md-3">
     <br/>
-    <h2>Update Subject</h2>
+    <h2 class="text-center">Update Subject</h2>
     <br/>
-
     <form method="POST" >
         {% csrf_token %}
 
-        <div class="row mb-2">
-            <label for="subname" class="col-sm-3 col-form-label">Subject Name:</label>
-            <div class="col-sm">
-                {{ form.subname }}
-                <div class="invalid-feedback">
-                    Please provide your target goal.
-                </div>
+        <div class="row mb-2 g-3 align-items-center">
+          <div class="col-3">
+            <label for="subname" class="col-form-label h5">Subject</label>
+          </div>
+          <div class="col-9">
+            {{ form.subname }}
+            <div class="invalid-feedback">
+                    Please Enter Subject Name
             </div>
-        </div>
-        <div class="row mb-2">
-            <label for="topic" class="col-sm-3 col-form-label">Topic:</label>
-            <div class="col-sm">
-                {{ form.topic }}
-                <div class="invalid-feedback">
-                    Please provide your target goal.
-                </div>
-            </div>
+          </div>
         </div>
 
-        <br/>
-        <button type="submit" class="btn btn-primary">Update Subject</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+        <div class="row mb-3 g-3 align-items-center">
+          <div class="col-3">
+            <label for="topic" class="col-form-label h5">Topic</label>
+          </div>
+          <div class="col-9">
+            {{ form.topic }}
+            <div class="invalid-feedback">
+                    Please Enter Topic Name
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center">
+        
+        <a href="{% url 'home' %}" class="btn btn-primary mx-2">Back</a>
+        <button type="submit" class="btn btn-success">Update Subject</button>
+        </div>
     </form>
 </div>
 

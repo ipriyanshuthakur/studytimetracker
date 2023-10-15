@@ -16,10 +16,10 @@ def record_context(request):
         end_of_week = start_of_week + timedelta(days=6)
         n_days = int(today.weekday())+1
         
-        completed_records = Record.objects.filter(user=user, done_at__date=today)
+        completed_records = Record.objects.filter(user=user, start_at__date=today, queue_no=-1)
         running_records = Record.objects.filter(user=user, queue_no=0)
 
-        total_time_today_seconds = sum(record.time_taken.total_seconds() for record in completed_records)        
+        total_time_today_seconds = sum(record.time_taken.total_seconds() for record in completed_records)  
         time_elapsed_seconds = sum((now - record.start_at.replace(tzinfo=None)).total_seconds() for record in running_records)
 
         # Calculate total time in seconds
@@ -62,11 +62,15 @@ def record_context(request):
         else:
             this_week_total_time_formatted = "0m"
             avg_hours_this_week="0m"
-        # Add the calculated values to the context dictionary
+        start_at = None
+               # Add the calculated values to the context dictionary
+        
         context['total_time'] = total_time
+        context['todaysDate'] = today
         context['week_time_taken'] = this_week_total_time_formatted
         context['week_avg'] = avg_hours_this_week
         context['dateToday'] = now.strftime('%d %B %Y')
         context['monthNow'] = now.strftime("%B %Y")
+
 
     return context

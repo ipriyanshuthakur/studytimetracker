@@ -17,5 +17,10 @@ urlpatterns = [
     path('setting_page/', views.setting_page, name='setting_page'),
     path('progress/', views.progress, name='progress'),
     path('date_range_records/<str:start>/<str:end>/', views.date_range_view, name='date_range_view'),
-    path('search_page/', views.search_page, name='search_page')
+    path('search_page/', views.search_page, name='search_page'),
+    path('records_progress/<str:sDate>/', views.records_progress, name='records_progress'),
+
+
+
+
 ]
