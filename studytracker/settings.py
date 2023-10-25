@@ -3,7 +3,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+7^8tw=^38vajy3lv-dy3ci0wg5(9xhq%$k&inf4__6$4uo2kv'
 DEBUG = True
-ALLOWED_HOSTS = ['*','.vercel.app']
+ALLOWED_HOSTS = ['*']
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
@@ -53,14 +53,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'studytracker.wsgi.application'
 
-
 DATABASES = {
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-                 
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'studytracker',
+        'USER': 'root',
+        'PASSWORD': 'password123',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
