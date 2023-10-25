@@ -12,7 +12,10 @@ from django.db.models import Sum, F
 from collections import defaultdict
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
+from urllib.parse import urlencode
+from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage, PageNotAnInteger
+
 
 def float_to_hours_minutes(value):
     hours = int(value)
@@ -28,8 +31,6 @@ def float_to_hours_minutes(value):
         return "0m"
 
 
-
-@csrf_exempt
 def home(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
@@ -99,8 +100,6 @@ def logout_user(request):
 	messages.info(request, "You Have Been Logged Out...")
 	return redirect('home')
 
-
-@csrf_exempt
 def progress(request):
     if request.user.is_authenticated:
         user = request.user
@@ -248,7 +247,8 @@ def progress(request):
     else:
         messages.success(request, "You Must Be Logged In To Do That...")
         return redirect('home')
-@csrf_exempt
+
+
 def setting_page(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
@@ -266,7 +266,7 @@ def setting_page(request):
         messages.error(request, "You must be logged in to access the settings page.")
         return redirect('home')
 
-@csrf_exempt
+
 def register_user(request):
 	if request.method == 'POST':
 		form = SignUpForm(request.POST)
@@ -287,7 +287,8 @@ def register_user(request):
 
 	return render(request, 'register.html', {'form':form})
 
-@csrf_exempt
+
+
 def date_range_view(request, start, end):
     if request.user.is_authenticated:
         user=request.user
@@ -362,7 +363,7 @@ def date_range_view(request, start, end):
 
 
 
-@csrf_exempt
+
 def sub_list(request, pk):
     if request.user.is_authenticated:
         sub_list = Record.objects.get(id=pk)
@@ -384,7 +385,9 @@ def sub_list(request, pk):
     else:
         messages.success(request, "You Must Be Logged In...")
         return redirect('home')
-@csrf_exempt
+
+
+
 def mark_complete(request, pk):
 	if request.user.is_authenticated:
 		current_record = Record.objects.get(id=pk)
@@ -400,7 +403,7 @@ def mark_complete(request, pk):
 	else:
 		messages.success(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
-@csrf_exempt
+
 def start_subject(request, pk):
 	if request.user.is_authenticated:
 		running_records = Record.objects.filter(user=request.user, queue_no=0)
@@ -416,7 +419,9 @@ def start_subject(request, pk):
 	else:
 		messages.error(request, "You Must Be Logged In To Do That...")
 		return redirect('home') 
-@csrf_exempt
+
+
+
 def delete_record(request, pk):
 	if request.user.is_authenticated:
 		delete_it = Record.objects.get(id=pk)
@@ -427,7 +432,8 @@ def delete_record(request, pk):
 		messages.success(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
 
-@csrf_exempt
+
+
 def add_record(request):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -458,7 +464,8 @@ def add_record(request):
         return redirect('home')
     return render(request, 'add_record.html', {'form': form})
 
-@csrf_exempt
+
+
 def update_record(request, pk):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -481,7 +488,7 @@ def update_record(request, pk):
 
     return render(request, 'update_record.html', {'form': form})
 
-@csrf_exempt
+
 def search_page(request):
     if request.user.is_authenticated:
         user=request.user
@@ -505,9 +512,21 @@ def search_page(request):
                 date_range_start = form.cleaned_data.get('date_range_start')
                 date_range_end = form.cleaned_data.get('date_range_end')
                 single_date = form.cleaned_data.get('single_date')
-                subject = form.cleaned_data.get('subject')
+                subject = form.cleaned_data.get('findsubject')
+                if subject=='':
+                    subject= None
+                query_parameters = {
+                    'start_date': date_range_start,
+                    'end_date': date_range_end,
+                    'date': single_date,
+                    'subjectname': subject,
+                }
+                query_string = urlencode(query_parameters)
 
-                if date_range_start and date_range_end:
+                if subject:
+                    return HttpResponseRedirect(f'/search_result/?{query_string}')
+
+                elif subject is None and date_range_start and date_range_end:
                     if date_range_start<date_range_end:
                         url = reverse('date_range_view', args=[date_range_start, date_range_end])
                         return redirect(url)
@@ -517,12 +536,14 @@ def search_page(request):
                     else:
                         messages.error(request, "Initial date should not exceeds end Date")
 
-                elif single_date:
+                elif subject is None and single_date:
                     url = reverse('records_progress', args=[single_date])
                     return redirect(url)
-
+                else:
+                    messages.error(request, "Invalid Form")
+                    return redirect('search_page') 
                 
-            
+    
 
         context = {
             'thisYearMonths':thisYearMonths,
@@ -537,8 +558,6 @@ def search_page(request):
         return redirect('home')
 
 
-
-@csrf_exempt
 def records_progress(request, sDate):
     if request.user.is_authenticated:
         user=request.user
@@ -601,4 +620,58 @@ def records_progress(request, sDate):
             return redirect('search_page')
     else:
         messages.success(request, "You Must Be Logged In...")
+        return redirect('home')
+
+
+
+
+
+def search_result(request):
+    if request.user.is_authenticated:
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        date = request.GET.get('date')
+        subjectname = request.GET.get('subjectname')
+        if subjectname.lower()=='all':
+            records = Record.objects.filter(user=request.user, queue_no=-1)
+        else:
+            records = Record.objects.filter(user=request.user, subname=subjectname, queue_no=-1)
+        if date=='None':
+            date=None
+        if start_date=='None' or end_date=='None':
+            start_date=None
+            end_date=None 
+
+        if date:
+            date = datetime.strptime(date, '%Y-%m-%d').date()
+            records = records.filter(start_at__date=date)
+
+        elif start_date and end_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            records = records.filter(start_at__date__range=(start_date, end_date))
+
+
+        total_records=records.count()
+        paginator = Paginator(records, 10)
+
+        page = request.GET.get('page')
+        try:
+            records_page = paginator.page(page)
+        except PageNotAnInteger:
+            records_page = paginator.page(1)
+        except EmptyPage:
+            records_page = paginator.page(paginator.num_pages)
+
+        context = {
+            'start_date': start_date,
+            'end_date': end_date,
+            'date': date,
+            'subjectname': subjectname,
+            'records': records_page,
+            'total_records':total_records,
+        }
+        return render(request, 'search_result.html', context)
+    else:
+        messages.success(request, "You must be logged in to access this page.")
         return redirect('home')

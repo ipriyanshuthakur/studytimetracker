@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load main_extras %}
+{% block content %}
+
+
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+    <h2 class="text-primary">{{ subjectname|title }}</h2>
+</div>
+
+
+
+{% if start_date%}
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+    <h2>{{ start_date|format_date_2 }} TO {{ end_date|format_date_2 }}</h2>
+</div>
+{% endif %}
+
+{% if date %}
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+    <h2>{{ date|format_date_2 }}</h2>
+</div>
+{% endif %}
+
+{% if records %}
+
+<div class="mb-2 d-flex  justify-content-between">
+    <div class="card" style="width: 49%">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h6>Total</h6>
+            <h6  class="text-primary" style=" font-size: 30px; ">{{total_records}}</h6>
+        </div>
+    </div>
+    <div class="card" style="width: 49%">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <h6>Total Time</h6>
+            <h6 id="total-time" class="text-primary" style=" font-size: 30px; ">{{records|time_sum}}</h6>
+
+            
+        </div>
+    </div>
+</div>
+
+
+<div class="card p-3 mb-2">
+
+    <table class="table-borderless table table-hover table-sm text-start table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Topic</th> 
+                <th>Start Date</th>
+                <th>Done Date</th>
+                <th>Time Taken</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
+
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ record.topic }}</td>
+                    <td>{{ record.start_at }}</td>
+                    <td>{{ record.done_at }}</td>
+                    <td>{{ record.time_taken|format_timedelta }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+<div class="pagination">
+    <span class="step-links">
+        {% if records.has_previous %}
+            <a href="?page=1&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">first</a>
+            <a href="?page={{ records.previous_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">previous</a>
+        {% endif %}
+        
+        <span class="current-page">{{ records.number }}</span>
+        
+        {% if records.has_next %}
+            <a href="?page={{ records.next_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">next</a>
+            <a href="?page={{ records.paginator.num_pages }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">last</a>
+        {% endif %}
+    </span>
+</div>
+
+</div>
+
+
+
+
+
+{%else%}
+
+    
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+    <h4 class="text-secondary text-center">Nothing To Show</h4>
+</div>
+    
+{% endif %}
+
+<style type="text/css">
+          .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+</style>
+
+{% endblock %}

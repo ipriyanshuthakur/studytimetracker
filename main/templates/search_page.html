@@ -6,6 +6,8 @@
 
 <div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
     <h3 class="card-title text-center text-success">Advance Search</h3>
+</div>
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
     <form method="post">
     {% csrf_token %}
 
@@ -22,11 +24,10 @@
         <button class="btn btn-outline-primary" type="submit">GO</button>
     </div>
     <div class="d-flex justify-content-between align-items-center"><hr style="width: 40%;"><h6>OR</h6><hr style="width: 40%;"></div>
-    <h6>Select Subject or Topic or both</h6>
-    <div class="input-group mb-3" id="subject-topic-section">
+    <h6>Select Subject</h6>
+    <div class="input-group mb-3" id="subject-section">
         {{ form.findsubject }}
-        {{ form.findtopic }}
-        <button class="btn btn-outline-primary" type="submit">GO</button>
+        <button class="btn btn-outline-primary" id="subject-clear-btn" type="submit">GO</button>
     </div>
 
 </form>
@@ -35,29 +36,33 @@
 
 
 <div class="card p-3 mb-2">
-  <p class="card-title text-center text-success h4">Quick links</p>
+  <p class="card-title text-center text-success h4">Quick Links</p>
+</div>
+<div class="card p-3 mb-2">
   <p class="card-title text-center h4">Year <span class="text-primary">{{thisYear}}</span> </p>
 <div class="row">
   {% for month in thisYearMonths %}
     <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-<a href="{% url 'date_range_view' month|first_date_of_month month|last_date_of_month %}" class="btn btn-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+<a href="{% url 'date_range_view' month|first_date_of_month month|last_date_of_month %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
     <span class="text-nowrap">{{ month }}</span>
 </a>
     </div>
   {% endfor %}
       <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-        <a href="{% url 'date_range_view' thisMonthDays|first thisMonthDays|last %}" class="btn btn-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+        <a href="{% url 'date_range_view' thisMonthDays|first thisMonthDays|last %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
             <span class="text-nowrap">{{ monthNow|remove_year}}</span>
         </a>
-    </div>
+     </div>
 
-
+</div>
+</div>
+<div class="card p-3 mb-2">
 
  <p class="card-title text-center h4">This Month <span class="text-primary">{{monthNow}}</span> </p>
 <div class="row">
   {% for day in thisMonthDays %}
     <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-        <a href="{% url 'records_progress' day %}" class="btn btn-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+        <a href="{% url 'records_progress' day %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
             <span class="text-nowrap">{{day|format_date}}</span>
         </a>
     </div>
@@ -70,25 +75,20 @@
     <script>
         const dateRangeSection = document.getElementById("date-range-section");
         const singleDateSection = document.getElementById("single-date-section");
-        const subjectTopicSection = document.getElementById("subject-topic-section");
+        
 
         dateRangeSection.addEventListener("click", () => {
             singleDateSection.querySelector("input").value = "";
-            subjectTopicSection.querySelector("input").value = "";
+            
         });
 
         singleDateSection.addEventListener("click", () => {
             dateRangeSection.querySelector("input[name='date_range_start']").value = "";
             dateRangeSection.querySelector("input[name='date_range_end']").value = "";
-            subjectTopicSection.querySelector("input[name='findsubject']").value = "";
-            subjectTopicSection.querySelector("input[name='findtopic']").value = "";
+            
         });
 
-        subjectTopicSection.addEventListener("click", () => {
-            dateRangeSection.querySelector("input[name='date_range_start']").value = "";
-            dateRangeSection.querySelector("input[name='date_range_end']").value = "";
-            singleDateSection.querySelector("input").value = "";
-        });
+
     </script>
 
 

@@ -109,12 +109,6 @@ class MySearchForm(forms.Form):
         label='Subject Name', 
         required=False
     )
-    findtopic = forms.CharField(
-    	max_length=100, 
-        widget=forms.TextInput(attrs={"placeholder": "Topic Name", "class": "form-control"}),
-        label='Topic Name', 
-        required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super(MySearchForm, self).__init__(*args, **kwargs)

@@ -5,18 +5,27 @@ register = template.Library()
 
 @register.filter
 def format_timedelta(td):
-    hours, remainder = divmod(td.total_seconds(), 3600)
-    minutes, seconds = divmod(remainder, 60)
-    if hours:
-        return f"{int(hours)}h {int(minutes)}m"
-    else:
-        return f"{int(minutes)}m"
+    if td:
+        hours, remainder = divmod(td.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        if hours:
+            return f"{int(hours)}h {int(minutes)}m"
+        else:
+            return f"{int(minutes)}m"
 
 @register.filter
 def format_date(value):
     try:
         date_obj = datetime.strptime(value, "%Y-%m-%d")
-        return date_obj.strftime("%d %B")
+        return date_obj.strftime("%d")
+    except ValueError:
+        return value
+
+@register.filter
+def format_date_2(value):
+    try:
+
+        return value.strftime("%d %b %Y")
     except ValueError:
         return value
 
