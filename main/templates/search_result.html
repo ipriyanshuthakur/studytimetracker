@@ -47,6 +47,9 @@
         <thead>
             <tr>
                 <th>#</th>
+                {% if subjectname|lower == 'all' %}
+                 <tH>Subject ec</tH>
+                {% endif %}
                 <th>Topic</th> 
                 <th>Start Date</th>
                 <th>Done Date</th>
@@ -58,6 +61,10 @@
                 <tr style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
 
                     <td>{{ forloop.counter }}</td>
+                    {% if subjectname|lower == 'all' %}
+                        <td>{{ record.subname }}</td>
+                    {% endif %}
+
                     <td>{{ record.topic }}</td>
                     <td>{{ record.start_at }}</td>
                     <td>{{ record.done_at }}</td>
