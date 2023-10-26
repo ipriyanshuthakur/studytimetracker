@@ -25,6 +25,7 @@
 
 
 
+
 <div class="mb-4 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
@@ -66,7 +67,7 @@
                         <span id="time-elapsed"></span>
                      </h1>
                         <h5  style=" font-size: 30px; ">
-                        {{ record.subname }} <span class="text-primary">{{ record.topic }} </span>
+                        <span class="text-primary">{{ record.subname }} </span>{{ record.topic }} 
                         </h5>
                         <h6 class="card-title">Started at: {{ record.start_at.time }}</h6>
                     </div>
@@ -87,7 +88,8 @@
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                       <div class="modal-body">
-                        <h5>Want to delete? <span class="text-primary">{{ record.topic }}, </span><span class="text-success">{{ record.subname }}</span></h5>
+                        <h5>Want to delete? </h5>
+                        <h5><span class="text-primary">{{ record.subname }} - </span><span class="text-success">{{ record.topic }}</span></h5>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal">No</button>
@@ -227,28 +229,70 @@
     {% endif %}
 <script>
     function updateTimeElapsed() {
-        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s' }}");
+        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s.u' }}");
         var current_time = new Date();
         var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
+
+        // Ensure the elapsed time doesn't go negative
+        if (elapsed_time_seconds < 0) {
+            elapsed_time_seconds =0;
+        }
+
         var hours = Math.floor(elapsed_time_seconds / 3600);
         var minutes = Math.floor((elapsed_time_seconds % 3600) / 60);
         var seconds = elapsed_time_seconds % 60;
-        
+
         var time_elapsed_formatted = "";
-        
+
         if (hours > 0) {
-            time_elapsed_formatted += hours + 'h ';
+            time_elapsed_formatted += hours + 'h ' + minutes + 'm ';
+        } else if (minutes > 0) {
+            time_elapsed_formatted += minutes + 'm ';
         }
-        
-        time_elapsed_formatted += minutes + 'm ' + seconds + 's';
-        
+
+        time_elapsed_formatted += seconds + 's';
+
         document.getElementById("time-elapsed").textContent = time_elapsed_formatted;
     }
-    
+
     updateTimeElapsed();
     setInterval(updateTimeElapsed, 1000);
+</script>
 
+<script>
+    function updateTotalTime() {
+        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s.u' }}");
+        var done_time_sec = parseInt("{{ done_time }}", 10); // Parse done_time as an integer in seconds
+        var current_time = new Date();
+        var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
+        
+        if (elapsed_time_seconds < 0) {
+            elapsed_time_seconds = 0;
+        }
 
+        var total_time_sec = elapsed_time_seconds + done_time_sec;
+        
+        var hours = Math.floor(total_time_sec / 3600);
+        var minutes = Math.floor((total_time_sec % 3600) / 60);
+        var seconds = total_time_sec % 60;
+
+        var total_time_today = "";
+
+        if (hours > 0) {
+            total_time_today += hours + 'h ' + minutes + 'm ';
+        } else if (minutes > 0) {
+            total_time_today += minutes + 'm ';
+        }else{
+            total_time_today += '0m';
+        }
+
+        
+
+        document.getElementById("today-content").textContent = total_time_today;
+    }
+
+    updateTotalTime();
+    setInterval(updateTotalTime, 1000); // Refresh every minute
 </script>
 
     
@@ -272,29 +316,26 @@
         .card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border: none;
+            border-color: green;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .card-container {
 
-        height: 40vh; /* Adjust this value to control the height */
-        }
-        .main_section{
-            height: ;
+        min-height: 40vh; /* Adjust this value to control the height */
         }
 
    .modal {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             border: none;
             border-radius: 5px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     .modal-content {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
-            border: none;
+            border-color: red;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }

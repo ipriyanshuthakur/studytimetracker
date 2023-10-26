@@ -25,7 +25,7 @@
             <h6 id="total-time" class="text-primary" style=" font-size: 30px; ">{{total_studied}}</h6>
             {% if recordsDate|date:"d F Y" == dateToday and running_records%}
             <h6>Running</h6>
-            <h6 class="text-success" style=" font-size: 30px; ">{{running_records|length}} ><span id="running-time"></span></h6>
+            <h6 class="text-success" style=" font-size: 30px; ">'{{running_records|length}}' / <span id="running-time"></span></h6>
             {%endif%}
 
             
@@ -44,11 +44,11 @@
 <div class="card p-3 mb-2 ">
   {% for running in running_records%}
   <p class="fs-4 h5 text-center">Currently Running</span></p>
-  <div class="d-flex justify-content-evenly">
-  <p class="card-title h5"><span class="text-success">{{ running.subname}}</span></p>
-  <p class="card-title h5"><span class="text-success">{{ running.topic}}</span></p>
-  <p class="card-title h5"><span class="text-success">{{ running.start_at.time}}</span></p>
-  <p class="card-title h5"><span class="text-success"><span id="running-time2"></span></p>
+  <div class="d-flex justify-content-evenly align-items-center border border-success " style="border-radius: 5px;">
+  <p class="card-title text-success h6">{{ running.subname}}</p>
+  <p class="card-title">{{ running.topic}}</p>
+  <p class="card-title">{{ running.start_at.time}}</p>
+  <p class="card-title"><span id="running-time2"></span></p>
   </div>
   {%endfor%}
 </div>
@@ -224,7 +224,7 @@
           .card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border: none;
+            border-color: green;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }

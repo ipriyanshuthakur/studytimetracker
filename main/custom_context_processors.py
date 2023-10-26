@@ -63,10 +63,11 @@ def record_context(request):
             this_week_total_time_formatted = "0m"
             avg_hours_this_week="0m"
         start_at = None
-               # Add the calculated values to the context dictionary
-        
+       
+        context['done_time'] = total_time_today_seconds
         context['total_time'] = total_time
         context['todaysDate'] = today
+        context['time_now'] = now
         context['week_time_taken'] = this_week_total_time_formatted
         context['week_avg'] = avg_hours_this_week
         context['dateToday'] = now.strftime('%d %B %Y')

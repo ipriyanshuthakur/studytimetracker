@@ -34,7 +34,8 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body">
-        <h5>Want to delete? <span class="text-primary">{{ sub_list.topic }}, </span><span class="text-success">{{ sub_list.subname }}</span></h5>
+        <h5>Want to delete?</h5>
+        <h5> <span class="text-primary">{{ sub_list.subname }} - </span><span class="text-success">{{ sub_list.topic }}</span></h5>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal">No</button>
@@ -49,7 +50,7 @@
 .card {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
-    border: none;
+    border-color: green;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -61,9 +62,9 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 .modal-content {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
-            border: none;
+            border-color: red;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }

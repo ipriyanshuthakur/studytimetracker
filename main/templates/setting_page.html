@@ -2,8 +2,11 @@
 {% block content %}
 
 <div class="col-md-6 offset-md-3">
-    <h2>Settings</h2>
-    <br/>
+    <div class="card p-2 mb-3 d-flex justify-content-center align-items-center">
+    <h2 class="text-primary">Settings</h2>
+</div>
+
+    <div class="card p-3 mb-2">
 
     <form method="POST">
         {% csrf_token %}
@@ -54,11 +57,23 @@
                 </div>
             </div>
         </div>
-
-        <br/>
-        <button type="submit" class="btn btn-primary">Apply</button>
-        <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+</div>
+        <div class="card p-3">
+        <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-success mx-2">Apply</button>
+        <a href="{% url 'home' %}" class="btn btn-primary mx-2">Home</a>
+        </div>
+        </div>
+        
     </form>
 </div>
-
+<style type="text/css">
+          .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-color: green;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+</style>
 {% endblock %}
