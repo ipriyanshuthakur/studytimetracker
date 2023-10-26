@@ -12,7 +12,7 @@
         {% csrf_token %}
 
         <div class="row mb-2">
-            <label for="target_goal" class="col-sm-3 col-form-label">Target Goal:</label>
+            <label for="target_goal" class="col-sm-4 col-form-label">Target:</label>
             <div class="col-sm">
                 {{ form.target_goal }}
                 <div class="invalid-feedback">
@@ -21,7 +21,7 @@
             </div>
         </div>
          <div class="row mb-2">
-            <label for="target_date" class="col-sm-3 col-form-label">The Start Date:</label>
+            <label for="target_date" class="col-sm-4 col-form-label">The Start Date:</label>
             <div class="col-sm">
                 {{ form.thestart_date }}
                 <div class="invalid-feedback">
@@ -30,7 +30,7 @@
             </div>
         </div>
        <div class="row mb-2">
-            <label for="target_date" class="col-sm-3 col-form-label">Target Date:</label>
+            <label for="target_date" class="col-sm-4 col-form-label">Target Date:</label>
             <div class="col-sm">
                 {{ form.target_date }}
                 <div class="invalid-feedback">
@@ -39,9 +39,9 @@
             </div>
         </div>
 
-
+<hr my-0>
         <div class="row mb-2">
-            <label for="{{ form.daily_target_hours.id_for_label }}" class="col-sm-3 col-form-label">Daily Study Hours:</label>
+            <label for="{{ form.daily_target_hours.id_for_label }}" class="col-sm-4 col-form-label">Daily Study Hours:</label>
             <div class="col-sm">
                 {{ form.daily_target_hours }}
                 <div class="invalid-feedback">
@@ -50,7 +50,7 @@
             </div>
         </div>
         <div class="row mb-2">
-            <label for="{{ form.max_queued.id_for_label }}" class="col-sm-3 col-form-label">Max No of Scheduled/Day:</label>
+            <label for="{{ form.max_queued.id_for_label }}" class="col-sm-4 col-form-label">Max Scheduled:</label>
             <div class="col-sm">{{ form.max_queued }}
                 <div class="invalid-feedback">
                     Why you want to go beyond 10?.
