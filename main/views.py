@@ -6,16 +6,13 @@ from django.contrib import messages
 from .forms import SignUpForm, AddSubForm, UserSettingsForm, MySearchForm
 from .models import Record, UserSettings
 from datetime import datetime, timedelta, date
-from django.db.models import Q
-import calendar
-from django.db.models import Sum, F
 from collections import defaultdict
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage, PageNotAnInteger
-
+from django.views.decorators.csrf import csrf_exempt
 
 def float_to_hours_minutes(value):
     hours = int(value)
@@ -30,7 +27,7 @@ def float_to_hours_minutes(value):
     else:
         return "0m"
 
-
+@csrf_exempt
 def home(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
@@ -94,12 +91,12 @@ def home(request):
             messages.error(request, "There Was An Error Logging In, Please Try Again...")
 
     return render(request, 'home.html')
-
+@csrf_exempt
 def logout_user(request):
 	logout(request)
 	messages.info(request, "You Have Been Logged Out...")
 	return redirect('home')
-
+@csrf_exempt
 def progress(request):
     if request.user.is_authenticated:
         user = request.user
@@ -248,7 +245,7 @@ def progress(request):
         messages.success(request, "You Must Be Logged In To Do That...")
         return redirect('home')
 
-
+@csrf_exempt
 def setting_page(request):
     if request.user.is_authenticated:
         user_settings, created = UserSettings.objects.get_or_create(user=request.user)
@@ -266,7 +263,7 @@ def setting_page(request):
         messages.error(request, "You must be logged in to access the settings page.")
         return redirect('home')
 
-
+@csrf_exempt
 def register_user(request):
 	if request.method == 'POST':
 		form = SignUpForm(request.POST)
@@ -288,7 +285,7 @@ def register_user(request):
 	return render(request, 'register.html', {'form':form})
 
 
-
+@csrf_exempt
 def date_range_view(request, start, end):
     if request.user.is_authenticated:
         user=request.user
@@ -363,7 +360,7 @@ def date_range_view(request, start, end):
 
 
 
-
+@csrf_exempt
 def sub_list(request, pk):
     if request.user.is_authenticated:
         sub_list = Record.objects.get(id=pk)
@@ -387,7 +384,7 @@ def sub_list(request, pk):
         return redirect('home')
 
 
-
+@csrf_exempt
 def mark_complete(request, pk):
 	if request.user.is_authenticated:
 		current_record = Record.objects.get(id=pk)
@@ -403,7 +400,7 @@ def mark_complete(request, pk):
 	else:
 		messages.success(request, "You Must Be Logged In To Do That...")
 		return redirect('home')
-
+@csrf_exempt
 def start_subject(request, pk):
 	if request.user.is_authenticated:
 		running_records = Record.objects.filter(user=request.user, queue_no=0)
@@ -421,7 +418,7 @@ def start_subject(request, pk):
 		return redirect('home') 
 
 
-
+@csrf_exempt
 def delete_record(request, pk):
 	if request.user.is_authenticated:
 		delete_it = Record.objects.get(id=pk)
@@ -433,7 +430,7 @@ def delete_record(request, pk):
 		return redirect('home')
 
 
-
+@csrf_exempt
 def add_record(request):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -465,7 +462,7 @@ def add_record(request):
     return render(request, 'add_record.html', {'form': form})
 
 
-
+@csrf_exempt
 def update_record(request, pk):
     if not request.user.is_authenticated:
         messages.error(request, "You Must Be Logged In...")
@@ -488,7 +485,7 @@ def update_record(request, pk):
 
     return render(request, 'update_record.html', {'form': form})
 
-
+@csrf_exempt
 def search_page(request):
     if request.user.is_authenticated:
         user=request.user
@@ -557,7 +554,7 @@ def search_page(request):
         messages.success(request, "You Must Be Logged In...")
         return redirect('home')
 
-
+@csrf_exempt
 def records_progress(request, sDate):
     if request.user.is_authenticated:
         user=request.user
@@ -625,7 +622,7 @@ def records_progress(request, sDate):
 
 
 
-
+@csrf_exempt
 def search_result(request):
     if request.user.is_authenticated:
         start_date = request.GET.get('start_date')

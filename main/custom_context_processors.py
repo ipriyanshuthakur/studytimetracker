@@ -67,7 +67,6 @@ def record_context(request):
         context['done_time'] = total_time_today_seconds
         context['total_time'] = total_time
         context['todaysDate'] = today
-        context['time_now'] = now
         context['week_time_taken'] = this_week_total_time_formatted
         context['week_avg'] = avg_hours_this_week
         context['dateToday'] = now.strftime('%d %B %Y')

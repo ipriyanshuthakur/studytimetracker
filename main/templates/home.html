@@ -206,10 +206,7 @@
 
 
     {% else %}
- <div class="card p-3 mb-2">
-  <p class="card-title text-center text-success h2">Study <span class="text-primary">Time Tracker</span></p>
 
-</div>
         <div class="col-md-6 offset-md-3">
             <h1>Login</h1>
             <br/>
@@ -223,7 +220,11 @@
                     <input type="password" class="form-control" name="password" placeholder="Password" required>
                 </div>
                 <br/>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <div>
+                <button type="submit" class="btn btn-success">Login</button>
+                <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>           
+                </div>
+
             </form>
         </div>
     {% endif %}
