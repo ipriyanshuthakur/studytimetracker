@@ -11,9 +11,9 @@
     <div class="text-start">
         <h2 class="text-lg text-md-md text-sm-sm"  id="user-name">
             {% if user.is_superuser %}
-                I'm <span class="text-primary" >{{ user.username|title }}</span>
+                 I'm <span class="text-primary" > {{ user.username|title }}</span>
             {% else %}
-                I'm {{ user.first_name|title }} <span class="text-primary">{{ user.last_name|title }}</span>
+                 I'm {{ user.first_name|title }} <span class="text-primary">{{ user.last_name|title }}</span>
             {% endif %}
         </h2>
     </div>
@@ -66,10 +66,10 @@
             <div class="card card-container ">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center">
                     <div class="text-center card-title">
-                     <h1 class="text-success display-1 text-responsive" style="font-weight: bold; ">
+                     <h1 class="display-1 text-responsive" style="font-weight: bold; font-size: 60px;">
                         <span id="time-elapsed"></span>
                      </h1>
-                        <h5  style=" font-size: 30px; ">
+                        <h5  style=" font-size: 45px; ">
                         <span class="text-primary">{{ record.subname }} </span>{{ record.topic }} 
                         </h5>
                         <h6 class="card-title"></i> Started at: {{ record.start_at.time }}</h6>
@@ -312,7 +312,7 @@
     <style>
         #user-name {
             display: inline-block;
-            overflow: hidden;
+            font-family: 'Pacifico', cursive;
             white-space: nowrap;
             animation: typing 2s steps(100) forwards;
         }
@@ -329,6 +329,12 @@
     </style>
 
     <style>
+#time-elapsed {
+    font-family: 'Patua One', serif;
+    color: #8B4513; /* Reddish-brown color */
+
+}
+
 .card-container {
     min-height: 50vh;
 }
