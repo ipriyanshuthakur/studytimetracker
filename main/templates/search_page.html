@@ -4,13 +4,12 @@
 
 
 
-<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
-    <h3 class="card-title text-center text-success">Advance Search</h3>
-</div>
-<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+<div class="card p-3 mb-4 d-flex justify-content-center align-items-center">
+    <h1 class="card-title text-center">Search</h1>
+        <br>
     <form method="post">
     {% csrf_token %}
-
+   
     <h6>Select Duration (From - To)</h6>
     <div class="input-group mb-3" id="date-range-section">
         {{ form.date_range_start }}
@@ -36,7 +35,7 @@
 
 
 <div class="card p-3 mb-2">
-  <p class="card-title text-center text-success h4">Quick Links</p>
+  <h2 class="card-title text-center">Quick Links</h2>
 </div>
 <div class="card p-3 mb-2">
   <p class="card-title text-center h4">Year <span class="text-primary">{{thisYear}}</span> </p>
