@@ -12,15 +12,15 @@
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"> <!-- Note: 'ccs' changed to 'css' -->
 
-    <style>
-      body {
-        background-image: url("{% static 'wallpapers/wal0.jpg' %}");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        }
-        
-    </style>
+<style>
+  body {
+    background-image: url("{% static 'wallpapers/' %}{{ wallpaper }}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+</style>
+
 
 </head>
 <body>

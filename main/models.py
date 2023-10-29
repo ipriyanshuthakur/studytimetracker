@@ -16,8 +16,8 @@ class UserSettings(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	daily_target_hours = models.DecimalField(max_digits=5, decimal_places=2, default=8.0)
 	target_goal = models.TextField(blank=True)
-	thestart_date = models.DateField(blank=True, null=True)
 	target_date = models.DateField(blank=True, null=True)
 	max_queued = models.PositiveIntegerField(default=1)
+	wallpaper_number = models.PositiveSmallIntegerField(default=0)
 	def __str__(self):
 		return(f"{self.user} {self.daily_target_hours}")

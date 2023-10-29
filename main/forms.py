@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from .models import Record, UserSettings
 from datetime import datetime, timedelta, time
-
+import os
 
 class SignUpForm(UserCreationForm):
 	email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -62,9 +62,20 @@ class UserSettingsForm(forms.ModelForm):
 		label="",
 		required=False
 	)
+	def get_wallpaper_choices():
+		wallpaper_directory = os.path.join("static", "wallpapers")
+		wallpaper_files = os.listdir(wallpaper_directory)
+		choices = [(i, os.path.basename(file)) for i, file in enumerate(wallpaper_files)]
+		return choices
+	wallpaper_choices = get_wallpaper_choices()
+	
+	wallpaper_number = forms.ChoiceField(
+		choices=wallpaper_choices, 
+		widget=forms.Select(attrs={"placeholder": "Wallapers", "class": "form-control"})
+	)
 	class Meta:
 		model = UserSettings
-		fields = ['daily_target_hours', 'max_queued', 'target_goal', 'target_date', 'thestart_date'] 
+		fields = ['daily_target_hours', 'max_queued', 'target_goal', 'target_date', 'thestart_date', 'wallpaper_number'] 
 
 
 
@@ -85,9 +96,6 @@ class AddSubForm(forms.ModelForm):
         model = Record
         exclude = ("user", "queue_no", "created_at","start_at", "done_at")
 
-
-from django import forms
-from datetime import datetime
 
 class MySearchForm(forms.Form):
     date_range_start = forms.DateField( 

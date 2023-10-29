@@ -1,21 +1,27 @@
 from datetime import datetime, timedelta, date
-from .models import Record
+from .models import Record, UserSettings
 from django.db.models import Sum, Q
-
+import os
 def record_context(request):
     context = {}
 
-    # Check if the user is authenticated
+    wallpaper='wall0.png'
     if request.user.is_authenticated:
         # Get the current user
         user = request.user
+        user_settings, created = UserSettings.objects.get_or_create(user=user)
+        wallpaper_number=user_settings.wallpaper_number
+        wallpaper_directory = os.path.join("static", "wallpapers")
+        wallpaper_files = os.listdir(wallpaper_directory)
+        
+        wallpaper=wallpaper_files[wallpaper_number]
 
         now = datetime.now()
         today = now.date()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
         n_days = int(today.weekday())+1
-        
+      
         completed_records = Record.objects.filter(user=user, start_at__date=today, queue_no=-1)
         running_records = Record.objects.filter(user=user, queue_no=0)
 
@@ -64,6 +70,7 @@ def record_context(request):
             avg_hours_this_week="0m"
         start_at = None
        
+        
         context['done_time'] = total_time_today_seconds
         context['total_time'] = total_time
         context['todaysDate'] = today
@@ -71,6 +78,7 @@ def record_context(request):
         context['week_avg'] = avg_hours_this_week
         context['dateToday'] = now.strftime('%d %B %Y')
         context['monthNow'] = now.strftime("%B %Y")
+    context['wallpaper'] = wallpaper
 
 
     return context

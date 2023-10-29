@@ -13,6 +13,7 @@ from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
+import os
 
 def float_to_hours_minutes(value):
     hours = int(value)
@@ -254,10 +255,10 @@ def setting_page(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, "Settings updated successfully.")
-                return redirect('home')
+                return redirect('setting_page')
         else:
             form = UserSettingsForm(instance=user_settings)
-
+        
         return render(request, 'setting_page.html', {'form': form})
     else:
         messages.error(request, "You must be logged in to access the settings page.")
