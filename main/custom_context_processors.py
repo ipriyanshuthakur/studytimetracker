@@ -5,7 +5,7 @@ import os
 def record_context(request):
     context = {}
 
-    wallpaper='wall0.png'
+    wallpaper='StudyTime.png'
     if request.user.is_authenticated:
         # Get the current user
         user = request.user
@@ -17,7 +17,7 @@ def record_context(request):
         try:
             wallpaper = wallpaper_files[wallpaper_number]
         except (IndexError, TypeError):
-            wallpaper = 'wall0.png'
+            wallpaper = 'StudyTime.png'
 
 
         now = datetime.now()
