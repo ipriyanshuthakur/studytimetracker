@@ -126,7 +126,7 @@
     {% endif %}
 
     {% if queued_records %}
-    <div class="card p-2">
+    <div class="card mb-2 p-2">
         <div class="d-flex align-items-center justify-content-center">
             <p style="font-size: 20px; font-weight: bold;">
                 Pending <span class="text-primary" style="font-size: 25px;">{{ total_queued }}</span> 
@@ -154,7 +154,9 @@
                                     <a href="{% url 'update_record' record.id %}" class="btn btn-secondary btn-sm">Edit</a>
 
                                 </div>
+                                {% if not running_records %}
                                 <a href="{% url 'start_subject' record.id %}" class="btn btn-primary btn-sm">Start</a>
+                                {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

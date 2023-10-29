@@ -9,12 +9,11 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto nav-underline fs-5 text-center fw-semibold">
         {% if user.is_authenticated %}
-
+          <li class="nav-item">
+          <a class="nav-link" href="{% url 'progress' %}">Progress</a>
+        </li>
         <li class="nav-item ">
           <a class="nav-link " href="{% url 'search_page' %}">Search</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'progress' %}">Progress</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'setting_page' %}">Settings</a>
