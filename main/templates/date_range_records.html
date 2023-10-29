@@ -12,14 +12,12 @@
 <div class="mb-2 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <h6>Subjects</h6>
+            <h6>Completed Subjects</h6>
             <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{grouped_records.items|length}}</h6>
             
             <h6>Total Topics</h6>
             <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{records|length}} 
-            {% if formatted_end_date == dateToday and running_records%}
-                <span class="text-success"> + {{running_records|length}}</span>
-            {% endif %}</h6>   
+            </h6>   
             
         </div>
     </div>
@@ -69,17 +67,16 @@
     <thead>
         <tr>
             <th>Date</th>
-            <th >Time</th>
+           
             <th>Subject</th>
             <th>Topic</th>
-            <th>Total Time</th>
+            <th>Time</th>
         </tr>
     </thead>
     <tbody>
         {% for record in records %}
         <tr style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
             <td>{{ record.start_at|date:"d/m/y" }}</td>
-            <td>{{ record.start_at|time }}</td>
             <td>{{ record.subname }}</td>
             <td>{{ record.topic }}</td>
             <td>{{ record.time_taken|format_timedelta }}</td>
@@ -120,7 +117,7 @@
                     <tr style="cursor: pointer;" onclick="window.location.href='{% url 'sub_list' record.id %}'">
                         <td>{{ forloop.counter }}</td>
                         <td>{{ record.topic }}</td>
-                        <td>{{ record.start_at|date }}</td>
+                        <td>{{ record.start_at|date:"d/m/y"}}</td>
                         <td>{{ record.time_taken|format_timedelta }}</td>
                         
                     </tr>
@@ -207,13 +204,7 @@
 
 
 <style type="text/css">
-          .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-color: green;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+
         .chartDurationC{
 
         height: 250px; /* Adjust this value to control the height */

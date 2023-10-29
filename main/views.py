@@ -237,7 +237,8 @@ def progress(request):
             'todaydate':today,
             'current_week_start':current_week_start,
             'barbgcolors':barbgcolors,
-            'barcolors':barcolors
+            'barcolors':barcolors,
+            'running_records':running_records
 
         }
 

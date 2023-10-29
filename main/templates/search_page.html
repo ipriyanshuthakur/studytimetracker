@@ -62,7 +62,7 @@
 <div class="row">
   {% for day in thisMonthDays %}
     <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-        <a href="{% url 'records_progress' day %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+        <a href="{% url 'records_progress' day %}" class="my-btn btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
             <span class="text-nowrap">{{day|format_date}}</span>
         </a>
     </div>
@@ -92,13 +92,5 @@
     </script>
 
 
-<style type="text/css">
-          .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-color: green;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-</style>
+
 {% endblock %}

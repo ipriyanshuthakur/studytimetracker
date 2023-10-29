@@ -3,6 +3,9 @@
 
 <div class="col-md-6 offset-md-3">
     <br/>
+    <div class="card p-3 mb-2 ">
+
+
     <h2 class="text-center">Add New Subject</h2>
     <br/>
     <form method="POST" action="{% url 'add_record' %}" >
@@ -36,9 +39,9 @@
         <a href="{% url 'home' %}" class="btn btn-primary mx-2">Back</a>
         <button type="submit" class="btn btn-success">Add Subject</button>
         </div>
+        </div>
     </form>
 </div>
-
 
 
 {% endblock %}

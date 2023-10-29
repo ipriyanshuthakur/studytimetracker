@@ -30,46 +30,22 @@
 </div>
 </div>
 <!-- Modal -->
-<div class="modal fade text-left" id="deletethis" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade text-center" id="deletethis" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body">
-        <h5>Want to delete?</h5>
-        <h5> <span class="text-primary">{{ sub_list.subname }} - </span><span class="text-success">{{ sub_list.topic }}</span></h5>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal">No</button>
-        <a href="{% url 'delete_record' sub_list.id %}" class="btn btn-danger rounded-pill">Yes, Delete it!</a>
+    <div class="h  modal-content py-4">
+            <h4>Want to delete?</h4>
+            <h5>{{ sub_list.subname }} - {{ sub_list.topic }}</h5>
+        <br>
+      <div class="d-flex justify-content-around">
+        <button type="button" class="btn btn-outline-success rounded-pill" data-bs-dismiss="modal"><i class='bx bx-check-shield bx-flashing' style='color:#5cb85c'  ></i> No</button>
+        <a href="{% url 'delete_record' sub_list.id %}" class="btn btn-outline-danger rounded-pill mx-2"><i class='bx bx-error bx-tada' style='color:#ff0000'  ></i> Yes, Delete it!</a>
+        
       </div>
     </div>
   </div>
 </div>
 
 
-<style>
-.card {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-color: green;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.modal {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-.modal-content {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border-color: red;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-</style>
     <script>
         function goBack() {
             window.history.back();

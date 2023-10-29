@@ -1,8 +1,10 @@
+
 {% extends 'base.html' %}
 {% block content %}
 {% load main_extras %}
 {% load static %}
 {% if user.is_authenticated %}
+
 <section class="main_section">
             <!-- Top User Info and Time -->
 <div class="d-flex mb-2 justify-content-between align-items-center">
@@ -16,8 +18,9 @@
         </h2>
     </div>
     <div class="text-end">
+
         {% if running_records %}
-            <a href="{% url 'add_record' %}" class="btn btn-primary rounded-pill">Add Subject</a>
+            <a href="{% url 'add_record' %}" class="btn btn-primary rounded-pill"><i class='bx bx-list-plus bx-tada' style='color:#ffffff' ></i> Add Subject</a>
         {% endif %}
     </div>
 </div>
@@ -52,10 +55,10 @@
             <div class="card card-container ">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center">
                     <div class="text-center card-title">
-                        <a href="{% url 'add_record' %}" class="btn btn-success btn-lg rounded-pill">Start A New Subject</a>
+                        <a href="{% url 'add_record' %}" class="btn btn-success btn-lg rounded-pill"> <i class='bx bx-plus bx-flashing' style='color:#ffffff' ></i> Start A New Subject</a>
                     </div>
             </div>
-        </div>
+            </div>
     {% endif %}
 
     {% if running_records %}
@@ -69,35 +72,38 @@
                         <h5  style=" font-size: 30px; ">
                         <span class="text-primary">{{ record.subname }} </span>{{ record.topic }} 
                         </h5>
-                        <h6 class="card-title">Started at: {{ record.start_at.time }}</h6>
+                        <h6 class="card-title"></i> Started at: {{ record.start_at.time }}</h6>
                     </div>
                     <div class=" d-flex justify-content-center">
                     <div class="btn-group mx-2">
                         <a href="{% url 'update_record' record.id %}" class="btn btn-secondary ">Edit</a>
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletecurrentModal">
+                            <i class='bx bx-error bx-tada' style='color:#ffffff'  ></i>
                           Delete
                         </button>
                     </div>
-                    <a href="{% url 'mark_complete' record.id %}" class="mx-2 btn btn-success rounded-pill">Done</a>
+                    <a href="{% url 'mark_complete' record.id %}" class="mx-2 btn btn-success rounded-pill">
+                        <i class='bx bx-check-double bx-flashing' style='color:#ffffff' ></i> Done</a>
                     </div>
             </div>
         </div>
-            <!-- Modal -->
-              <div class="modal fade text-left" id="deletecurrentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                      <div class="modal-body">
-                        <h5>Want to delete? </h5>
-                        <h5><span class="text-primary">{{ record.subname }} - </span><span class="text-success">{{ record.topic }}</span></h5>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal">No</button>
-                        <a href="{% url 'delete_record' record.id %}" class="btn btn-danger rounded-pill">Yes, Delete it!</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <!-- Modal -->
+        <div class="modal fade text-center" id="deletecurrentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="h modal-content py-4">
+                    <h4>Want to delete?</h4>
+                    <h5>{{ record.subname }} - {{ record.topic }}</h5>
+                <br>
+              <div class="d-flex justify-content-around">
+                <button type="button" class="btn btn-outline-success rounded-pill" data-bs-dismiss="modal"><i class='bx bx-check-shield bx-flashing' style='color:#5cb85c'  ></i> No</button>
+                        <a href="{% url 'delete_record' record.id %}" class="btn btn-outline-danger rounded-pill"><i class='bx bx-error bx-tada' style='color:#ff0000'  ></i> Yes, Delete it!</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         {% endfor %}
     {% endif %}
 </div>
@@ -126,7 +132,7 @@
             </div>
 
             <div class="card p-3">
-                <table class="table table-hover table-sm">
+                <table class="table table-borderless table-hover table-sm">
                             <thead>
                                 <tr>
                                     <th>Subject</th>
@@ -174,7 +180,7 @@
             </div>
 
             <div class="card p-3">
-                <table class="table table-hover table-sm">
+                <table class="table table-borderless table-hover table-sm">
                             <thead >
                                 <tr>
                                     <th>Subject</th>
@@ -208,22 +214,25 @@
     {% else %}
 
         <div class="col-md-6 offset-md-3">
-            <h1>Login</h1>
-            <br/>
+            <br>
+            <div class="card p-3 mb-2">
+            <h1 class="text-center"><i class='bx bxs-user bx-flashing' ></i> Login</h1>
+            <br>
             <form method="POST" action="{% url 'home' %}">
                 {% csrf_token %}
                 <div class="mb-3">
                     <input type="text" class="form-control" name="username" placeholder="Username" required>
                 </div>
-                <br/>
+
                 <div class="mb-3">
                     <input type="password" class="form-control" name="password" placeholder="Password" required>
                 </div>
                 <br/>
-                <div>
-                <button type="submit" class="btn btn-success">Login</button>
-                <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>           
+                <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-success mx-1">Login</button>
+                <a href="{% url 'register' %}" class="btn btn-primary mx-1">Sign Up</a>           
                 </div>
+            </div>
 
             </form>
         </div>
@@ -314,32 +323,13 @@
             }
         }
         /* Apply glassmorphism effect to Bootstrap cards */
-        .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-color: green;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .card-container {
+.card-container {
+    min-height: 40vh;
+ /* Make the card completely round */
+}
 
-        min-height: 40vh; /* Adjust this value to control the height */
-        }
 
-   .modal {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    .modal-content {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border-color: red;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+
 
     </style>
 {% endblock %}

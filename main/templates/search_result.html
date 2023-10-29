@@ -41,7 +41,7 @@
 </div>
 
 
-<div class="card p-3 mb-2">
+<div class="card p-2 mb-2">
 
     <table class="table-borderless table table-hover table-sm text-start table-striped">
         <thead>
@@ -51,9 +51,8 @@
                  <th>Subject</th>
                 {% endif %}
                 <th>Topic</th> 
-                <th>Start Date</th>
-                <th>Done Date</th>
-                <th>Time Taken</th>
+                <th>Date</th>
+                <th>Time</th>
             </tr>
         </thead>
         <tbody>
@@ -66,8 +65,7 @@
                     {% endif %}
 
                     <td>{{ record.topic }}</td>
-                    <td>{{ record.start_at }}</td>
-                    <td>{{ record.done_at }}</td>
+                    <td>{{ record.start_at|date:"d/m/y" }}</td>
                     <td>{{ record.time_taken|format_timedelta }}</td>
                 </tr>
             {% endfor %}
@@ -106,15 +104,6 @@
     
 {% endif %}
 
-<style type="text/css">
-          .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-color: green;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
 
-</style>
 
 {% endblock %}

@@ -14,7 +14,11 @@ def record_context(request):
         wallpaper_directory = os.path.join("static", "wallpapers")
         wallpaper_files = os.listdir(wallpaper_directory)
         
-        wallpaper=wallpaper_files[wallpaper_number]
+        try:
+            wallpaper = wallpaper_files[wallpaper_number]
+        except (IndexError, TypeError):
+            wallpaper = 'wall0.png'
+
 
         now = datetime.now()
         today = now.date()
