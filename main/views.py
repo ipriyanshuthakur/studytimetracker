@@ -661,7 +661,7 @@ def search_result(request):
             records_page = paginator.page(1)
         except EmptyPage:
             records_page = paginator.page(paginator.num_pages)
-
+        
         context = {
             'start_date': start_date,
             'end_date': end_date,

@@ -9,9 +9,9 @@
             <!-- Top User Info and Time -->
 <div class="d-flex mb-2 justify-content-between align-items-center">
     <div class="text-start">
-        <h2 class="text-lg text-md-md text-sm-sm">
+        <h2 class="text-lg text-md-md text-sm-sm"  id="user-name">
             {% if user.is_superuser %}
-                I'm <span class="text-primary">{{ user.username|title }}</span>
+                I'm <span class="text-primary" >{{ user.username|title }}</span>
             {% else %}
                 I'm {{ user.first_name|title }} <span class="text-primary">{{ user.last_name|title }}</span>
             {% endif %}
@@ -325,14 +325,12 @@
                 width: 100%;
             }
         }
-        /* Apply glassmorphism effect to Bootstrap cards */
+ 
+    </style>
+
+    <style>
 .card-container {
-    min-height: 40vh;
- /* Make the card completely round */
+    min-height: 50vh;
 }
-
-
-
-
     </style>
 {% endblock %}

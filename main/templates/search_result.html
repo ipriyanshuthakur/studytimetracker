@@ -76,15 +76,15 @@
 <div class="pagination">
     <span class="step-links">
         {% if records.has_previous %}
-            <a href="?page=1&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">first</a>
-            <a href="?page={{ records.previous_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">previous</a>
+            <a href="?page=1&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">first</a>
+            <a href="?page={{ records.previous_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">previous</a>
         {% endif %}
         
         <span class="current-page">{{ records.number }}</span>
         
         {% if records.has_next %}
-            <a href="?page={{ records.next_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">next</a>
-            <a href="?page={{ records.paginator.num_pages }}&start_date={{ start_date }}&end_date={{ end_date }}&date={{ date }}&subjectname={{ subjectname }}">last</a>
+            <a href="?page={{ records.next_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">next</a>
+            <a href="?page={{ records.paginator.num_pages }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">last</a>
         {% endif %}
     </span>
 </div>
