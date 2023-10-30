@@ -10,10 +10,9 @@ from collections import defaultdict
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from urllib.parse import urlencode
-from django.core.paginator import Paginator
-from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
-import os
+
 
 def float_to_hours_minutes(value):
     hours = int(value)
@@ -365,22 +364,26 @@ def date_range_view(request, start, end):
 @csrf_exempt
 def sub_list(request, pk):
     if request.user.is_authenticated:
-        sub_list = Record.objects.get(id=pk)
-        queue_no = sub_list.queue_no
-        if sub_list.queue_no == 0:
-            status = "Running"
-        elif sub_list.queue_no>=0:
-            status = "Queued"
-        else:
-            status = "Completed"
+        try:
+            sub_list = Record.objects.get(id=pk)
+            queue_no = sub_list.queue_no
+            if sub_list.queue_no == 0:
+                status = "Running"
+            elif sub_list.queue_no>=0:
+                status = "Queued"
+            else:
+                status = "Completed"
 
-        context = {
-            'sub_list': sub_list,
-            'status': status,
-            'queue_no': queue_no,
-        }
+            context = {
+                'sub_list': sub_list,
+                'status': status,
+                'queue_no': queue_no,
+            }
 
-        return render(request, 'record.html', context)
+            return render(request, 'record.html', context)
+        except Record.DoesNotExist:
+            messages.success(request, "No Such Record")
+            return redirect('home')
     else:
         messages.success(request, "You Must Be Logged In...")
         return redirect('home')
