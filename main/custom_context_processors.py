@@ -2,18 +2,18 @@ from datetime import datetime, timedelta, date
 from .models import Record, UserSettings
 from django.db.models import Sum, Q
 import os
+import random
 def record_context(request):
     context = {}
-
-    wallpaper='StudyTime.png'
+    wallpaper_directory = os.path.join("static", "wallpapers")
+    wallpaper_files = os.listdir(wallpaper_directory)
+    count_files = len(wallpaper_files)
+    random_index = random.randint(0, count_files - 1)
+    wallpaper = wallpaper_files[random_index]
     if request.user.is_authenticated:
-        # Get the current user
         user = request.user
         user_settings, created = UserSettings.objects.get_or_create(user=user)
         wallpaper_number=user_settings.wallpaper_number
-        wallpaper_directory = os.path.join("static", "wallpapers")
-        wallpaper_files = os.listdir(wallpaper_directory)
-        
         try:
             wallpaper = wallpaper_files[wallpaper_number]
         except (IndexError, TypeError):
@@ -83,6 +83,4 @@ def record_context(request):
         context['dateToday'] = now.strftime('%d %B %Y')
         context['monthNow'] = now.strftime("%B %Y")
     context['wallpaper'] = wallpaper
-
-
     return context
