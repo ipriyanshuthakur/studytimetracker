@@ -17,7 +17,6 @@ from django.views.decorators.csrf import csrf_exempt
 def float_to_hours_minutes(value):
     hours = int(value)
     minutes = int((value - hours) * 60)
-    
     if hours > 0 and minutes > 0:
         return f"{hours}h {minutes}m"
     elif hours > 0:
@@ -91,11 +90,13 @@ def home(request):
             messages.error(request, "There Was An Error Logging In, Please Try Again...")
 
     return render(request, 'home.html')
+
 @csrf_exempt
 def logout_user(request):
 	logout(request)
 	messages.info(request, "You Have Been Logged Out...")
 	return redirect('home')
+
 @csrf_exempt
 def progress(request):
     if request.user.is_authenticated:
@@ -656,6 +657,7 @@ def search_result(request):
 
         total_records=records.count()
         paginator = Paginator(records, 10)
+        total_pages=paginator.num_pages
 
         page = request.GET.get('page')
         try:
@@ -672,6 +674,7 @@ def search_result(request):
             'subjectname': subjectname,
             'records': records_page,
             'total_records':total_records,
+            'total_pages': total_pages,
         }
         return render(request, 'search_result.html', context)
     else:

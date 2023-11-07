@@ -73,21 +73,26 @@
     </table>
 </div>
 <div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
-<div class="pagination">
-    <span class="step-links">
-        {% if records.has_previous %}
-            <a href="?page=1&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">first</a>
-            <a href="?page={{ records.previous_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">previous</a>
-        {% endif %}
-        
-        <span class="current-page">{{ records.number }}</span>
-        
-        {% if records.has_next %}
-            <a href="?page={{ records.next_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">next</a>
-            <a href="?page={{ records.paginator.num_pages }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">last</a>
-        {% endif %}
-    </span>
-</div>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if records.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ records.previous_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">&laquo;</a></li>
+    <li class="page-item"><a class="page-link" href="?page=1&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">1</a></li>
+    {% endif %}
+    <li class="page-item active"><a class="page-link">{{ records.number }}</a></li>
+    {% if records.has_next %}
+    
+    <li class="page-item"><a class="page-link" href="?page={{ records.paginator.num_pages }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">{{total_pages}}</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ records.next_page_number }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&date={{ date|date:'Y-m-d' }}&subjectname={{ subjectname }}">&raquo;</a></li>
+    {% endif %}
+    
+    
+  </ul>
+</nav>
+
+
+
 
 </div>
 
