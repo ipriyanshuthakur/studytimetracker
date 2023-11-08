@@ -30,7 +30,7 @@
 <div class="mb-4 d-flex  justify-content-between">
     <div class="card " style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <h6>{{ dateToday }}</h6>
+            <h6>{{ dateToday_short }}</h6>
             <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{ total_time }}</h6>
             <h6>{{ daily_target }} Study target</h6>
         </div>
@@ -38,7 +38,7 @@
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
             <h6>{{ d_day|format_date_2 }}</h6>
-            <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{ target }}</h6>
+            <h6  class="text-primary" style=" font-size: 30px; ">{{ target }}</h6>
             <h6>{{ days_remaining }} Days left</h6>
             
         </div>
@@ -303,17 +303,18 @@
 
 <script>
     function updateTotalTime() {
-        var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s.u' }}");
-        var done_time_sec = parseInt("{{ done_time }}", 10); // Parse done_time as an integer in seconds
-        var current_time = new Date();
-        var elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
-        
-        if (elapsed_time_seconds < 0) {
-            elapsed_time_seconds = 0;
+        var done_time_sec = {{ done_time|default:0 }}; // Use a default value in case done_time is not provided
+        var elapsed_time_seconds = 0;
+
+        var start_at = "{{ start_at|default:'' }}"; // Use a default empty string if start_at is not provided
+
+        if (start_at) {
+            var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s.u' }}");
+            var current_time = new Date();
+            elapsed_time_seconds = Math.floor((current_time - start_time) / 1000);
         }
 
         var total_time_sec = elapsed_time_seconds + done_time_sec;
-        
         var hours = Math.floor(total_time_sec / 3600);
         var minutes = Math.floor((total_time_sec % 3600) / 60);
         var seconds = total_time_sec % 60;
@@ -324,11 +325,9 @@
             total_time_today += hours + 'h ' + minutes + 'm ';
         } else if (minutes > 0) {
             total_time_today += minutes + 'm ';
-        }else{
+        } else {
             total_time_today += '0m';
         }
-
-        
 
         document.getElementById("today-content").textContent = total_time_today;
     }
@@ -336,6 +335,7 @@
     updateTotalTime();
     setInterval(updateTotalTime, 1000); // Refresh every minute
 </script>
+
 
     
     <style>
