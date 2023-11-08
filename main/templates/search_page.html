@@ -5,7 +5,7 @@
 
 
 <div class="card p-3 mb-4 d-flex justify-content-center align-items-center">
-    <h1 class="card-title text-center">Search</h1>
+    <h1 class="card-title text-center text-decoration-underline fw-bold">Search</h1>
         <br>
     <form method="post">
     {% csrf_token %}
@@ -14,19 +14,19 @@
     <div class="input-group mb-3" id="date-range-section">
         {{ form.date_range_start }}
         {{ form.date_range_end }}
-        <button class="btn btn-outline-primary" type="submit">GO</button>
+        <button class="btn btn-success" type="submit">GO</button>
     </div>
     <div class="d-flex justify-content-between align-items-center"><hr style="width: 40%;"><h6>OR</h6><hr style="width: 40%;"></div>
     <h6>Select a Date (Single day)</h6>
     <div class="input-group mb-3" id="single-date-section">
         {{ form.single_date }}
-        <button class="btn btn-outline-primary" type="submit">GO</button>
+        <button class="btn btn-success" type="submit">GO</button>
     </div>
     <div class="d-flex justify-content-between align-items-center"><hr style="width: 40%;"><h6>OR</h6><hr style="width: 40%;"></div>
     <h6>Select Subject</h6>
     <div class="input-group mb-3" id="subject-section">
         {{ form.findsubject }}
-        <button class="btn btn-outline-primary" id="subject-clear-btn" type="submit">GO</button>
+        <button class="btn btn-success" type="submit">GO</button>
     </div>
 
 </form>
@@ -35,33 +35,32 @@
 
 
 <div class="card p-3 mb-2">
-  <h2 class="card-title text-center">Quick Links</h2>
-</div>
-<div class="card p-3 mb-2">
-  <p class="card-title text-center h4">Year <span class="text-primary">{{thisYear}}</span> </p>
-<div class="row">
+  <h2 class="card-title text-center text-decoration-underline fw-bold">Quick Links</h2>
+
+  <p class="mt-2 text-center h4">Year <span class="text-primary">{{thisYear}}</span> </p>
+   <hr class="mt-0">
+<div class="row ">
   {% for month in thisYearMonths %}
-    <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-<a href="{% url 'date_range_view' month|first_date_of_month month|last_date_of_month %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+    <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2 ">
+<a href="{% url 'date_range_view' month|first_date_of_month month|last_date_of_month %}" class="fw-bold btn btn-success rounded-pill p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
     <span class="text-nowrap">{{ month }}</span>
 </a>
     </div>
   {% endfor %}
       <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-        <a href="{% url 'date_range_view' thisMonthDays|first thisMonthDays|last %}" class="btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+        <a href="{% url 'date_range_view' thisMonthDays|first thisMonthDays|last %}" class="fw-bold btn btn-success rounded-pill p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
             <span class="text-nowrap">{{ monthNow|remove_year}}</span>
         </a>
      </div>
-
 </div>
-</div>
-<div class="card p-3 mb-2">
 
- <p class="card-title text-center h4">This Month <span class="text-primary">{{monthNow}}</span> </p>
+
+ <p class="mt-2 text-center h4">This Month <span class="text-primary">{{monthNow}}</span> </p>
+ <hr class="mt-0">
 <div class="row">
   {% for day in thisMonthDays %}
     <div class="col-4 col-md-4 col-lg-3 col-xl-2 mb-2">
-        <a href="{% url 'records_progress' day %}" class="my-btn btn btn-outline-primary p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
+        <a href="{% url 'records_progress' day %}" class="my-btn fw-bold btn btn-success rounded-pill p-2 d-flex justify-content-center align-items-center shadow-sm" style="cursor: pointer;">
             <span class="text-nowrap">{{day|format_date}}</span>
         </a>
     </div>

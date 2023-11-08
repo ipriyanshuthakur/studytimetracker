@@ -74,13 +74,13 @@ def record_context(request):
             avg_hours_this_week="0m"
         start_at = None
        
-        
+    
         context['done_time'] = total_time_today_seconds
         context['total_time'] = total_time
         context['todaysDate'] = today
         context['week_time_taken'] = this_week_total_time_formatted
         context['week_avg'] = avg_hours_this_week
-        context['dateToday'] = now.strftime('%d %B %Y')
+        context['dateToday'] = now.strftime('%d %b %Y')
         context['monthNow'] = now.strftime("%B %Y")
     context['wallpaper'] = wallpaper
     return context

@@ -37,7 +37,7 @@
     </div>
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <h6>{{ d_day }}</h6>
+            <h6>{{ d_day|format_date_2 }}</h6>
             <h6 id="today-content" class="text-primary" style=" font-size: 30px; ">{{ target }}</h6>
             <h6>{{ days_remaining }} Days left</h6>
             
