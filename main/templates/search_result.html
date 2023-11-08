@@ -3,15 +3,11 @@
 {% block content %}
 
 
-<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
-    <h2 class="text-primary">{{ subjectname|title }}</h2>
-</div>
-
 
 
 {% if start_date%}
 <div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
-    <h2>{{ start_date|format_date_2 }} TO {{ end_date|format_date_2 }}</h2>
+    <h3 class="text-success">{{ start_date|format_date_2 }} <span class="text-primary">-</span> {{ end_date|format_date_2 }}</h3>
 </div>
 {% endif %}
 
@@ -20,13 +16,15 @@
     <h2>{{ date|format_date_2 }}</h2>
 </div>
 {% endif %}
-
+<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+    <h2 class="fw-bold">Subject: <span class="text-primary ">{{ subjectname|title }}</span></h2>
+</div>
 {% if records %}
 
 <div class="mb-2 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
         <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <h6>Total</h6>
+            <h6>Total Subjects</h6>
             <h6  class="text-primary" style=" font-size: 30px; ">{{total_records}}</h6>
         </div>
     </div>
@@ -43,7 +41,7 @@
 
 <div class="card p-2 mb-2">
 
-    <table class="table-borderless table table-hover table-sm text-start table-striped">
+    <table class="table-borderless table table-hover table-sm text-start table-striped ">
         <thead>
             <tr>
                 <th>#</th>
@@ -72,7 +70,7 @@
         </tbody>
     </table>
 </div>
-<div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
+<div class=" p-3 mb-2 d-flex justify-content-center align-items-center">
 
 <nav aria-label="Page navigation example">
   <ul class="pagination">
@@ -104,7 +102,7 @@
 
     
 <div class="card p-3 mb-2 d-flex justify-content-center align-items-center">
-    <h4 class="text-secondary text-center">Nothing To Show</h4>
+    <h3 class="text-primary text-center">Nothing To Show</h3>
 </div>
     
 {% endif %}

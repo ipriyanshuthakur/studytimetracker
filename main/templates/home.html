@@ -11,17 +11,15 @@
     <div class="text-start">
         <h2 class="text-lg text-md-md text-sm-sm"  id="user-name">
             {% if not user.first_name %}
-                 I'm <span class="text-primary" > {{ user.username|title }}</span>
+                 🙋‍♂️ <span class="text-primary text-decoration-underline" > {{ user.username|title }}</span>
             {% else %}
-                 I'm {{ user.first_name|title }} <span class="text-primary">{{ user.last_name|title }}</span>
+                  🙎‍<span class=" text-decoration-underline"> {{ user.first_name|title }} </span><span class="text-primary text-decoration-underline">{{ user.last_name|title }}</span>
             {% endif %}
         </h2>
     </div>
     <div class="text-end">
 
-        {% if running_records %}
-            <a href="{% url 'add_record' %}" class="btn btn-primary rounded-pill"><i class='bx bx-list-plus bx-tada' style='color:#ffffff' ></i> Add Subject</a>
-        {% endif %}
+<p class="h3" id="time"></p>
     </div>
 </div>
 
@@ -241,6 +239,36 @@
             </form>
         </div>
     {% endif %}
+
+
+<script>
+        function updateTime() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var ampm = hours >= 12 ? 'pm' : 'am';
+
+            // Convert hours to 12-hour format
+            if (hours > 12) {
+                hours = hours - 12;
+            }
+
+            // Add leading zeros to minutes if needed
+            if (minutes < 10) {
+                minutes = '0' + minutes;
+            }
+
+            // Display the time in the specified format
+            var timeString = hours + ':' + minutes + ' ' + ampm;
+            document.getElementById('time').textContent = "⌚" + timeString;
+        }
+
+        // Update the time every second
+        setInterval(updateTime, 1000);
+
+        // Initial call to set the time
+        updateTime();
+    </script>
 <script>
     function updateTimeElapsed() {
         var start_time = new Date("{{ start_at|date:'Y-m-d H:i:s.u' }}");
@@ -339,5 +367,23 @@
 .card-container {
     min-height: 50vh;
 }
+
     </style>
+
+<style>
+        #time {
+             font-family: 'Pacifico', cursive;
+
+            background-color: rgba(199, 157, 209, .25);
+              backdrop-filter: blur(8px);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            text-align: center;
+            padding-right: 4px;
+            padding-left: 4px;
+ 
+        }
+</style>
 {% endblock %}
+

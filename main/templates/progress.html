@@ -63,7 +63,7 @@
         <div class="card mb-2">
             <div class="card-body">
                <p style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' current_week_start todaydate %}'" class="card-title text-center h4">This Week <span class="text-primary">{{ this_week_range }}</span> </p>
-               <p class="card-title text-center h5">Avg: <span class="text-success">{{week_avg}}</span> Total hrs: <span class="text-success">{{week_time_taken}}</span></p>
+               <p class="card-title text-center h5">Avg Time: <span class="text-success">{{week_avg}},</span> Total Time: <span class="text-success">{{week_time_taken}}</span></p>
                 <div class="chartother">
                     <canvas id="myChart2"></canvas>
                 </div>
@@ -86,7 +86,7 @@
 <div class="card p-3 mb-2">
   <p style="cursor: pointer;" onclick="window.location.href='{% url 'date_range_view' first_day_of_month todaydate %}'" class="card-title text-center text-primary h3">{{ monthNow }}</p>
 
-   <p class="card-title text-center h5">Avg: <span class="text-success">{{monthavg}}</span> Total hrs: <span class="text-success">{{monthTotal}}</span></p>
+   <p class="card-title text-center h5">Avg Time: <span class="text-success">{{monthavg}},</span> Total Time: <span class="text-success">{{monthTotal}}</span></p>
 
     <div class="chartMonth">
       <canvas id="myChart"></canvas>

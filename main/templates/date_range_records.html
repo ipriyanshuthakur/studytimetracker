@@ -7,7 +7,7 @@
    <p class="card-title text-center h3">Days:  <span class="text-primary">{{total_days_duration}}</span></p>
 </div>
 
-
+{% if records %}
 
 <div class="mb-2 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
@@ -54,7 +54,7 @@
 </div>
 {%endif%}
 
-{% if records %}
+
 <div class="row">
 <div class="col-sm-12 col-md-12 col-lg-6">
 
@@ -133,6 +133,11 @@
 
     </div>
 </div>
+{%else%}
+<div class="card p-3 mb-2">
+  <h3 class="text-center text-primary">Nothing To Show</h3>
+</div>
+
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
