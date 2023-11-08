@@ -74,7 +74,11 @@
                         </h5>
                         <h6 class="card-title"></i> Started at: {{ record.start_at.time }}</h6>
                     </div>
-                    <div class=" d-flex justify-content-center">
+
+
+                    <a href="{% url 'mark_complete' record.id %}" class="mx-2 btn btn-success rounded-pill"><i class='bx bx-check-double bx-flashing' style='color:#ffffff' ></i> Done</a>
+                   
+                    <div class=" d-flex justify-content-center mt-1">
                     <div class="btn-group mx-2">
                         <a href="{% url 'update_record' record.id %}" class="btn btn-secondary ">Edit</a>
                         <!-- Button trigger modal -->
@@ -83,11 +87,8 @@
                           Delete
                         </button>
                     </div>
-
-                    <a href="{% url 'mark_complete' record.id %}" class="mx-2 btn btn-success rounded-pill">
-                        <i class='bx bx-check-double bx-flashing' style='color:#ffffff' ></i> Done</a>
                     </div>
-            </div>
+    </div>
         </div>
         <!-- Modal -->
         <div class="modal fade text-center" id="deletecurrentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

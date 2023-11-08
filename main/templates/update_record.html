@@ -11,10 +11,10 @@
         {% csrf_token %}
 
         <div class="row mb-2 g-3 align-items-center">
-          <div class="col-3">
+          <div class="col-4">
             <label for="subname" class="col-form-label h5"><i class='bx bxs-book-heart'></i> Subject</label>
           </div>
-          <div class="col-9">
+          <div class="col-8">
             {{ form.subname }}
             <div class="invalid-feedback">
                     Please Enter Subject Name
@@ -23,10 +23,10 @@
         </div>
 
         <div class="row mb-3 g-3 align-items-center">
-          <div class="col-3">
+          <div class="col-4">
             <label for="topic" class="col-form-label h5"><i class='bx bxs-note'></i> Topic</label>
           </div>
-          <div class="col-9">
+          <div class="col-8">
             {{ form.topic }}
             <div class="invalid-feedback">
                     Please Enter Topic Name
