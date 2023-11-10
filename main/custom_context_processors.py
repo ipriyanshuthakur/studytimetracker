@@ -23,9 +23,9 @@ def record_context(request):
         now = datetime.now()
         today = now.date()
         start_of_week = today - timedelta(days=today.weekday())
-        end_of_week = start_of_week + timedelta(days=6)
+        end_of_week = today
         n_days = int(today.weekday())+1
-      
+
         completed_records = Record.objects.filter(user=user, start_at__date=today, queue_no=-1)
         running_records = Record.objects.filter(user=user, queue_no=0)
 
@@ -45,15 +45,15 @@ def record_context(request):
 
         this_week_total_time_seconds = Record.objects.filter(
             user=user,
-            done_at__date__range=[start_of_week, end_of_week],
+            start_at__date__range=[start_of_week, end_of_week],
             queue_no=-1
         ).aggregate(week_time=Sum('time_taken'))['week_time']
 
-
-
-        
+             
         if this_week_total_time_seconds:
             this_week_total_time_seconds=this_week_total_time_seconds.total_seconds()+time_elapsed_seconds
+            
+            avg_time_per_day_seconds = this_week_total_time_seconds / n_days
             total_week_hours, week_remainder = divmod(this_week_total_time_seconds, 3600)
             total_week_minutes = week_remainder // 60
             if total_week_hours > 0:
@@ -61,7 +61,6 @@ def record_context(request):
             else:
                 this_week_total_time_formatted = f"{int(total_week_minutes)}m"
 
-            avg_time_per_day_seconds = this_week_total_time_seconds / n_days
             avg_hours, avg_remainder = divmod(int(avg_time_per_day_seconds), 3600)
             avg_minutes = avg_remainder // 60
             if avg_hours > 0:

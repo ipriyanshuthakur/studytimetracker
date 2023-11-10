@@ -13,18 +13,15 @@ from urllib.parse import urlencode
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 
-
-def float_to_hours_minutes(value):
-    hours = int(value)
-    minutes = int((value - hours) * 60)
-    if hours > 0 and minutes > 0:
-        return f"{hours}h {minutes}m"
-    elif hours > 0:
-        return f"{hours}h"
-    elif minutes > 0:
-        return f"{minutes}m"
+def float_to_hours_minutes(decimal_hours):
+    # Split the decimal hours into hours and minutes
+    hours, minutes = divmod(decimal_hours * 60, 60)
+    if hours>0:
+        result = f"{int(hours)}h {int(minutes)}m"
     else:
-        return "0m"
+        result = f"{int(minutes)}m"
+    return result
+
 
 @csrf_exempt
 def home(request):
@@ -177,21 +174,24 @@ def progress(request):
 
 
         # Calculate hours for current month
-
+        month_total_float=0
         for i in range(total_days_in_month):
             thatday = first_day_of_month + timedelta(days=i)
             t_time = 0
             completed_thatday = this_month_records.filter(start_at__date=thatday)
             if running_records.exists():
                 c_seconds = (now - running_records[0].start_at.replace(tzinfo=None)).total_seconds()
-                c_time = round(c_seconds / 3600, 2)
+                c_time = c_seconds / 3600
             else:
                 c_time = 0
             for record in completed_thatday:
                 t_time += round(record.time_taken.total_seconds() / 3600, 1)
+                month_total_float+=record.time_taken.total_seconds() / 3600
             if i == (total_days_in_month - 1):
-                t_time = round((t_time + c_time), 2)
+                t_time = round((t_time + c_time), 1)
+                month_total_float+=c_time
             this_month_hours.append(t_time)
+
         subname_totals = defaultdict(float)
         for record in this_week_records:
             subname = record.subname
@@ -201,8 +201,8 @@ def progress(request):
         thisWeekSub = list(subname_totals_dict.keys())  # Extract keys (subnames)
         thisWeekHours = list(subname_totals_dict.values())  # Extract values (study hours)
         thisWeekHoursTotal = float_to_hours_minutes(sum(thisWeekHours))
-        monthTotal=float_to_hours_minutes(sum(this_month_hours))
-        monthavg=float_to_hours_minutes(sum(this_month_hours)/total_days_in_month)
+        monthTotal=float_to_hours_minutes(month_total_float)
+        monthavg=float_to_hours_minutes(month_total_float/total_days_in_month)
         
         barNums=len(thisWeekSub)
         barbgcolors=['rgba(0, 123, 255, 0.6)']*barNums
@@ -305,8 +305,8 @@ def date_range_view(request, start, end):
                 queue_no=-1,
                 ).order_by('start_at')
             running_records = Record.objects.filter(user=user, queue_no=0)
-            formatted_start_date = start_date.strftime('%d %B %Y')
-            formatted_end_date = end_date.strftime('%d %B %Y')
+            formatted_start_date = start_date.strftime('%d %b %Y')
+            formatted_end_date = end_date.strftime('%d %b %Y')
             total_days_duration = len(duration_dates)
             duration_hours =[]
             for i in range(total_days_duration):

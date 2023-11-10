@@ -8,6 +8,25 @@
   {%endif%}
   <p class="card-title text-center text-success h3">{{ recordsDate|date:"d F Y" }}</span></p>
 </div>
+
+
+{% if recordsDate|date:"d F Y" == dateToday and running_records%}
+<div class="card p-3 mb-2 ">
+  {% for running in running_records%}
+  <p class="fs-4 h5 text-center">Currently Running</span></p>
+  <div class="d-flex justify-content-evenly align-items-center border border-success " style="border-radius: 5px;">
+  <p class="card-title text-success h6">{{ running.subname}}</p>
+  <p class="card-title">{{ running.topic}}</p>
+  <p class="card-title">{{ running.start_at.time}}</p>
+  <p class="card-title"><span id="running-time2"></span></p>
+  </div>
+  {%endfor%}
+</div>
+{%endif%}
+
+
+
+
 {% if records %}
 <div class="mb-2 d-flex  justify-content-between">
     <div class="card" style="width: 49%">
@@ -143,9 +162,11 @@
     </div>
 </div>
 {%else%}
-<div class="card p-3 mb-2">
-  <h3 class="text-center text-primary">Nothing To Show</h3>
-</div>
+{% if  not running_records%}
+    <div class="card p-3 mb-2">
+      <h3 class="text-center text-primary">Nothing To Show</h3>
+    </div>
+{% endif %}
 {% endif %}
 
 
